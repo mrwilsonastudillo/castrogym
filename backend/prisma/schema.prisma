@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String?  // null para usuarios de redes sociales
+  nombre       String
+  rol          String   // "CLIENTE" | "COACH" | "ADMIN"
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  provider     String?  // "google" | "facebook" | null (local)
+  providerId   String?  // ID del proveedor social
+  cliente      Cliente?
+  coach        Coach?
+}
+
+model Cliente {
+  id                     String      @id @default(uuid())
+  usuarioId              String      @unique
+  telefono               String
+  fechaNacimiento        DateTime
+  genero                 String      // "M" | "F"
+  objetivo               String      // "PERDIDA_PESO" | "GANANCIA_MUSCULAR" | "TONIFICACION" | "OTRO"
+  limitacionesFisicas    String?
+  aceptoTratamientoDatos Boolean     @default(false)
+  fechaAceptacion        DateTime?
+  esVIP                  Boolean     @default(false)
+  avatarPersonaje        String?
+  usuario                Usuario     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  citas                  Cita[]
+  mediciones             Medicion[]
+  membresias             Membresia[]
+}
+
+model Coach {
+  id           String         @id @default(uuid())
+  usuarioId    String         @unique
+  especialidad String?
+  telefono     String?
+  activo       Boolean        @default(true)
+  usuario      Usuario        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  horarios     HorarioCoach[]
+  citas        Cita[]
+  mediciones   Medicion[]
+}
+
+model HorarioCoach {
+  id                  String @id @default(uuid())
+  coachId             String
+  diaSemana           Int    // 0=Lun, 1=Mar, 2=Mie, 3=Jue, 4=Vie, 5=Sab, 6=Dom
+  horaInicio          String // "HH:mm"
+  horaFin             String // "HH:mm"
+  duracionCitaMinutos Int    @default(30)
+  coach               Coach  @relation(fields: [coachId], references: [id], onDelete: Cascade)
+
+  @@unique([coachId, diaSemana])
+}
+
+model Cita {
+  id          String    @id @default(uuid())
+  clienteId   String
+  coachId     String
+  fechaInicio DateTime
+  fechaFin    DateTime
+  estado      String    @default("AGENDADA") // AGENDADA | COMPLETADA | CANCELADA
+  notas       String?
+  createdAt   DateTime  @default(now())
+  cliente     Cliente   @relation(fields: [clienteId], references: [id])
+  coach       Coach     @relation(fields: [coachId], references: [id])
+  medicion    Medicion?
+}
+
+model Medicion {
+  id               String   @id @default(uuid())
+  clienteId        String
+  coachId          String
+  citaId           String?  @unique
+  fechaMedicion    DateTime @default(now())
+  pesoKg           Float
+  estaturaCm       Int
+  imc              Float
+  icc              Float?
+  iccClasificacion String?  // "BAJO" | "MODERADO" | "ALTO"
+  toraxCm          Int?
+  cinturaCm        Int?
+  caderaCm         Int?
+  bicepsCm         Int?
+  musloCm          Int?
+  pantorrillaCm    Int?
+  porcentajeGrasa  Float?
+  masaMuscular     Float?
+  densidadOsea     Float?
+  grasaEstimada    Boolean  @default(false)
+  // Pliegues Yuhasz (solo clientes VIP)
+  pliegueTricepe       Float?
+  pliegueSubescapular  Float?
+  pliegueSupraespinal  Float?
+  pliegueAbdominal     Float?
+  pliegueMusloAnt      Float?
+  plieguePantorrilla   Float?
+  sumaPliegues         Float?
+  grasaYuhasz          Float?
+  notas            String?
+  cliente          Cliente  @relation(fields: [clienteId], references: [id])
+  coach            Coach    @relation(fields: [coachId], references: [id])
+  cita             Cita?    @relation(fields: [citaId], references: [id])
+}
+
+model Membresia {
+  id          String   @id @default(uuid())
+  clienteId   String
+  tipo        String   // "MENSUAL" | "TRIMESTRAL" | "SEMESTRAL" | "ANUAL" | "VIP"
+  fechaInicio DateTime
+  fechaFin    DateTime
+  precio      Float
+  estado      String   // "ACTIVA" | "VENCIDA" | "CANCELADA"
+  notas       String?
+  createdAt   DateTime @default(now())
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+}
+
+model ContenidoEstatico {
+  id                 String   @id @default(uuid())
+  clave              String   @unique
+  titulo             String
+  contenido          String   // markdown
+  fechaActualizacion DateTime @updatedAt
+}
+
+model NotificacionPendiente {
+  id           String    @id @default(uuid())
+  tipo         String    // "CITA_CONFIRMADA" | "RECORDATORIO_24H" | "CITA_CANCELADA" | "NUEVA_MEDICION" | "MEMBRESIA_POR_VENCER" | "MEMBRESIA_VENCIDA"
+  destinatario String    // email
+  datos        String    // JSON stringify
+  estado       String    @default("PENDIENTE") // PENDIENTE | ENVIADA | FALLIDA
+  intentos     Int       @default(0)
+  fechaEnvio   DateTime?
+  createdAt    DateTime  @default(now())
+}
