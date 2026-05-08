@@ -10,8 +10,6 @@ import logo from "../images/logo.jpg";
 
 declare global {
   interface Window {
-    FB: any;
-    fbAsyncInit: () => void;
     google: any;
     grecaptcha: any;
   }
@@ -84,13 +82,6 @@ function GoogleIcon() {
   );
 }
 
-function FacebookIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
-      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-    </svg>
-  );
-}
 
 export default function LoginPage() {
   const { login, user, loading } = useAuth();
@@ -99,7 +90,7 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [socialLoading, setSocialLoading] = useState<"google" | "facebook" | null>(null);
+  const [socialLoading, setSocialLoading] = useState<"google" | null>(null);
 
   useEffect(() => {
     if (!loading && user) router.replace("/dashboard");
@@ -126,18 +117,6 @@ export default function LoginPage() {
       document.head.appendChild(s);
     }
 
-    // Facebook SDK
-    const fbAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
-    if (fbAppId && !document.getElementById("fb-script")) {
-      window.fbAsyncInit = () => {
-        window.FB.init({ appId: fbAppId, cookie: true, xfbml: false, version: "v19.0" });
-      };
-      const s = document.createElement("script");
-      s.id = "fb-script";
-      s.src = "https://connect.facebook.net/es_LA/sdk.js";
-      s.async = true;
-      document.body.appendChild(s);
-    }
   }, []);
 
   // ── Helpers ─────────────────────────────────────────
@@ -197,26 +176,6 @@ export default function LoginPage() {
         },
       })
       .requestAccessToken();
-  }
-
-  function handleFacebookLogin() {
-    if (!window.FB) {
-      setError("Facebook SDK cargando, intenta de nuevo en unos segundos.");
-      return;
-    }
-    setSocialLoading("facebook");
-    setError("");
-    window.FB.login(
-      async (resp: any) => {
-        if (resp.status !== "connected") {
-          setError("No se pudo conectar con Facebook");
-          setSocialLoading(null);
-          return;
-        }
-        await handleSocialCallback("facebook", resp.authResponse.accessToken);
-      },
-      { scope: "email,public_profile" }
-    );
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -385,36 +344,6 @@ export default function LoginPage() {
                   {socialLoading === "google" ? "Conectando…" : "Continuar con Google"}
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleFacebookLogin}
-                  disabled={anyLoading}
-                  className="cg-social-btn"
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    background: "#111",
-                    border: `1px solid ${C.border}`,
-                    borderRadius: "8px",
-                    color: C.white,
-                    fontSize: "14px",
-                    fontWeight: 600,
-                    fontFamily: font,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "10px",
-                    transition: "background 0.2s, border-color 0.2s",
-                  }}
-                >
-                  {socialLoading === "facebook" ? (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: "spin 0.8s linear infinite" }}>
-                      <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
-                    </svg>
-                  ) : <FacebookIcon />}
-                  {socialLoading === "facebook" ? "Conectando…" : "Continuar con Facebook"}
-                </button>
               </div>
 
               {/* Divisor */}
