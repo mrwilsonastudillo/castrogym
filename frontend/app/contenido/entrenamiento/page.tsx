@@ -85,7 +85,7 @@ export default function EntrenamientoPage() {
                   Registra tu primera medición para ver recomendaciones personalizadas.
                 </p>
                 <div className="mt-4">
-                  <a href="/agendar">
+                  <a href="/agendamedidas/agendar">
                     <Button size="sm">Agendar cita</Button>
                   </a>
                 </div>
@@ -145,7 +145,7 @@ export default function EntrenamientoPage() {
                 acompañamiento de un coach certificado Castro Gym.
               </p>
               <div className="mt-3">
-                <a href="/agendar">
+                <a href="/agendamedidas/agendar">
                   <Button size="sm" className="gap-1.5">
                     <MessageCircle size={14} /> Contactar coach
                   </Button>

@@ -198,7 +198,7 @@ function getNextAction(reporte: Reporte): NextAction {
       type: "success",
       title: "¡Vas muy bien!",
       message: "Mantén tu rutina actual. Los resultados hablan por sí solos.",
-      cta: { label: "Ver plan", href: "/contenido/entrenamiento" },
+      cta: { label: "Ver plan", href: "/agendamedidas/contenido/entrenamiento" },
     };
   }
 
@@ -350,7 +350,7 @@ export default function MisMedicionesPage() {
                 <Plus size={14} /> Nueva medición
               </Button>
             </a>
-            <a href="/contenido/entrenamiento">
+            <a href="/agendamedidas/contenido/entrenamiento">
               <Button size="sm" variant="secondary" className="gap-1.5">
                 <Dumbbell size={14} /> Ver plan
               </Button>
