@@ -10,3 +10,5 @@ build
 *.key
 *.db-journal
 files/
+backend/prisma/dev.db
+backend/prisma/prisma/dev.db
