@@ -1,13 +1,7 @@
 .env
-.env.local
-.env*.local
-next.config.js
-next.config.js
-next.config.js
-.env.local
-.env
+.env.*
+!.env.example
 .env.local
 next.config.js
-.env
-.env.local
-next.config.js
+.next/
+node_modules/
