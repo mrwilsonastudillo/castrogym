@@ -166,7 +166,7 @@ export default function MisDatosPage() {
       setConfirmEliminar(false);
       setTimeout(() => {
         localStorage.removeItem("cg_token");
-        window.location.href = "/login";
+        window.location.href = "/agendamedidas/login";
       }, 3000);
     } catch (err: any) {
       setError(err.message);
