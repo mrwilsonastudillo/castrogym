@@ -36,9 +36,9 @@ export default function AgendaPage() {
 
   const citasDelDia = citas.filter((c) => {
     const d = new Date(c.fechaInicio);
-    d.setUTCHours(d.getUTCHours()); // keep UTC
+
     return (
-      d.toISOString().slice(0, 10) === viewDate.toISOString().slice(0, 10)
+      d.toLocaleDateString("en-CA") === viewDate.toLocaleDateString("en-CA")
     );
   }).sort((a, b) => a.fechaInicio.localeCompare(b.fechaInicio));
 
@@ -78,14 +78,14 @@ export default function AgendaPage() {
             {citasDelDia.map((c) => {
               const inicio = new Date(c.fechaInicio);
               const fin = new Date(c.fechaFin);
-              const hora = `${inicio.getUTCHours().toString().padStart(2,"0")}:${inicio.getUTCMinutes().toString().padStart(2,"0")} – ${fin.getUTCHours().toString().padStart(2,"0")}:${fin.getUTCMinutes().toString().padStart(2,"0")}`;
+              const hora = `${inicio.getHours().toString().padStart(2,"0")}:${inicio.getMinutes().toString().padStart(2,"0")} – ${fin.getHours().toString().padStart(2,"0")}:${fin.getMinutes().toString().padStart(2,"0")}`;
               return (
                 <Card key={c.id} className="hover:shadow-md transition-shadow">
                   <CardContent className="pt-4 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                       <div className="text-center w-16">
                         <p className="text-lg font-bold text-sky-600">{hora.split(" – ")[0]}</p>
-                        <p className="text-xs text-gray-400">UTC</p>
+                        <p className="text-xs text-gray-400">COL</p>
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
