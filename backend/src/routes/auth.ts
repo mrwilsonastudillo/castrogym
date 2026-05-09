@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { z } from "zod";
 import { prisma } from "../utils/prisma";
 import { env } from "../utils/env";
@@ -71,6 +72,21 @@ async function getFacebookUser(
   } catch {
     return null;
   }
+}
+
+async function sendEmail(to: string, subject: string, html: string): Promise<void> {
+  if (!env.RESEND_API_KEY) {
+    console.log(`[email] Para: ${to} | Asunto: ${subject}`);
+    return;
+  }
+  await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ from: env.RESEND_FROM, to: [to], subject, html }),
+  });
 }
 
 function buildJwtResponse(usuario: {
@@ -308,7 +324,124 @@ router.get("/me", authenticate, async (req: Request, res: Response) => {
     coachId: usuario.coach?.id ?? null,
     esVIP: usuario.cliente?.esVIP ?? false,
     avatarPersonaje: usuario.cliente?.avatarPersonaje ?? null,
+    fotoPerfil: usuario.coach?.fotoPerfil ?? null,
   });
+});
+
+// ─── Forgot password ──────────────────────────────────────────────────────────
+
+router.post("/forgot-password", async (req: Request, res: Response) => {
+  const parsed = z.object({ email: z.string().email() }).safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: "Email inválido" });
+    return;
+  }
+
+  const usuario = await prisma.usuario.findUnique({
+    where: { email: parsed.data.email },
+  });
+
+  // Always respond the same to avoid revealing whether email exists
+  const genericMsg = "Si el email está registrado, recibirás instrucciones en tu correo.";
+
+  if (!usuario || !usuario.activo || !usuario.passwordHash) {
+    res.json({ message: genericMsg });
+    return;
+  }
+
+  // Invalidate previous tokens for this user
+  await prisma.passwordResetToken.deleteMany({ where: { usuarioId: usuario.id } });
+
+  const token = crypto.randomBytes(32).toString("hex");
+  const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+  await prisma.passwordResetToken.create({
+    data: { token, usuarioId: usuario.id, expiresAt },
+  });
+
+  const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${token}`;
+
+  await sendEmail(
+    usuario.email,
+    "Restablecer contraseña – Castro Gym",
+    `<p>Hola <b>${usuario.nombre}</b>,</p>
+<p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Castro Gym.</p>
+<p>Haz clic en el siguiente enlace (válido por 1 hora):</p>
+<p><a href="${resetUrl}" style="background:#0ea5e9;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;">Restablecer contraseña</a></p>
+<p>Si no solicitaste esto, ignora este mensaje.</p>`
+  );
+
+  res.json({ message: genericMsg });
+});
+
+// ─── Reset password ───────────────────────────────────────────────────────────
+
+router.post("/reset-password", async (req: Request, res: Response) => {
+  const parsed = z.object({
+    token: z.string().min(1),
+    password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  }).safeParse(req.body);
+
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+    return;
+  }
+
+  const resetToken = await prisma.passwordResetToken.findUnique({
+    where: { token: parsed.data.token },
+    include: { usuario: true },
+  });
+
+  if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
+    res.status(400).json({ error: "El enlace es inválido o ha expirado." });
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash(parsed.data.password, 10);
+
+  await prisma.$transaction([
+    prisma.usuario.update({
+      where: { id: resetToken.usuarioId },
+      data: { passwordHash },
+    }),
+    prisma.passwordResetToken.update({
+      where: { id: resetToken.id },
+      data: { usedAt: new Date() },
+    }),
+  ]);
+
+  res.json({ message: "Contraseña restablecida correctamente. Ya puedes iniciar sesión." });
+});
+
+// ─── Change password (authenticated) ─────────────────────────────────────────
+
+router.patch("/change-password", authenticate, async (req: Request, res: Response) => {
+  const parsed = z.object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(6, "La nueva contraseña debe tener al menos 6 caracteres"),
+  }).safeParse(req.body);
+
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+    return;
+  }
+
+  const usuario = await prisma.usuario.findUnique({ where: { id: req.user!.userId } });
+  if (!usuario || !usuario.passwordHash) {
+    res.status(400).json({ error: "No puedes cambiar la contraseña de una cuenta social" });
+    return;
+  }
+
+  const ok = await bcrypt.compare(parsed.data.currentPassword, usuario.passwordHash);
+  if (!ok) {
+    res.status(400).json({ error: "La contraseña actual es incorrecta" });
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash(parsed.data.newPassword, 10);
+  await prisma.usuario.update({ where: { id: usuario.id }, data: { passwordHash } });
+
+  res.json({ message: "Contraseña actualizada correctamente" });
 });
 
 export default router;

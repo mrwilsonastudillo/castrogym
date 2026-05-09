@@ -40,6 +40,7 @@ export interface Usuario {
   coachId: string | null;
   esVIP?: boolean;
   avatarPersonaje?: string | null;
+  fotoPerfil?: string | null;
 }
 
 export interface Coach {
@@ -48,6 +49,7 @@ export interface Coach {
   especialidad: string | null;
   telefono: string | null;
   activo: boolean;
+  fotoPerfil: string | null;
   usuario: { id: string; nombre: string; email: string };
   horarios: Horario[];
 }

@@ -8,17 +8,28 @@ datasource db {
 }
 
 model Usuario {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String?  // null para usuarios de redes sociales
-  nombre       String
-  rol          String   // "CLIENTE" | "COACH" | "ADMIN"
-  activo       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  provider     String?  // "google" | "facebook" | null (local)
-  providerId   String?  // ID del proveedor social
-  cliente      Cliente?
-  coach        Coach?
+  id                  String               @id @default(uuid())
+  email               String               @unique
+  passwordHash        String?              // null para usuarios de redes sociales
+  nombre              String
+  rol                 String               // "CLIENTE" | "COACH" | "ADMIN"
+  activo              Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  provider            String?              // "google" | "facebook" | null (local)
+  providerId          String?              // ID del proveedor social
+  cliente             Cliente?
+  coach               Coach?
+  passwordResetTokens PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  token     String    @unique
+  usuarioId String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 }
 
 model Cliente {
@@ -45,6 +56,7 @@ model Coach {
   especialidad String?
   telefono     String?
   activo       Boolean        @default(true)
+  fotoPerfil   String?
   usuario      Usuario        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   horarios     HorarioCoach[]
   citas        Cita[]

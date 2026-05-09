@@ -142,9 +142,17 @@ export default function AgendarPage() {
                       : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                   )}
                 >
-                  <div className="h-9 w-9 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-bold text-sm flex-shrink-0">
-                    {c.usuario.nombre.charAt(0)}
-                  </div>
+                  {c.fotoPerfil ? (
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"}${c.fotoPerfil}`}
+                      alt={c.usuario.nombre}
+                      className="h-9 w-9 rounded-full object-cover flex-shrink-0 border border-gray-200"
+                    />
+                  ) : (
+                    <div className="h-9 w-9 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-bold text-sm flex-shrink-0">
+                      {c.usuario.nombre.charAt(0)}
+                    </div>
+                  )}
                   <div>
                     <p className="font-medium text-gray-900">{c.usuario.nombre}</p>
                     {c.especialidad && <p className="text-xs text-gray-500">{c.especialidad}</p>}

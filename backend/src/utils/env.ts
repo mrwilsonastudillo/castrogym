@@ -22,4 +22,7 @@ export const env = {
   FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID ?? "",
   FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET ?? "",
   RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY ?? "",
+  RESEND_API_KEY: process.env.RESEND_API_KEY ?? "",
+  RESEND_FROM: process.env.RESEND_FROM ?? "Castro Gym <noreply@castrogym.com>",
+  FRONTEND_URL: process.env.FRONTEND_URL ?? "http://localhost:3000",
 };

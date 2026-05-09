@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { api, Usuario } from "@/lib/api";
+import { BASE_PATH } from "@/lib/base-path";
 
 interface AuthCtx {
   user: Usuario | null;
@@ -41,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   function logout() {
     localStorage.removeItem("cg_token");
     setUser(null);
-    window.location.href = "/agendamedidas/login";
+    window.location.href = `${BASE_PATH}/login`;
   }
 
   return (

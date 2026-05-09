@@ -1,6 +1,7 @@
 import "./utils/env"; // load .env first
 import express from "express";
 import cors from "cors";
+import path from "path";
 import { env } from "./utils/env";
 
 import authRouter from "./routes/auth";
@@ -17,7 +18,8 @@ import { startWorkers } from "./services/workers";
 const app = express();
 
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
+app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 
 app.get("/health", (_req, res) => res.json({ ok: true, ts: new Date().toISOString() }));
 

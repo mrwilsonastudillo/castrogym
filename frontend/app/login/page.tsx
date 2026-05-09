@@ -373,9 +373,14 @@ export default function LoginPage() {
                 </div>
 
                 <div style={{ marginBottom: "24px" }}>
-                  <label htmlFor="password" style={{ display: "block", color: C.gray400, fontSize: "12px", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", marginBottom: "8px" }}>
-                    Contraseña
-                  </label>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                    <label htmlFor="password" style={{ display: "block", color: C.gray400, fontSize: "12px", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>
+                      Contraseña
+                    </label>
+                    <Link href="/recuperar-contrasena" style={{ fontSize: "12px", color: C.yellow, fontWeight: 500, textDecoration: "none" }} className="cg-footer-link">
+                      ¿Olvidaste tu contraseña?
+                    </Link>
+                  </div>
                   <div style={{ position: "relative" }}>
                     <input
                       id="password"
