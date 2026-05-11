@@ -64,7 +64,7 @@ export default function AgendarPage() {
     setBooking(true);
     setError("");
     try {
-      const fechaInicio = new Date(`${toDateStr(selectedDate)}T${selectedSlot.horaInicio}:00`);
+      const fechaInicio = new Date(`${toDateStr(selectedDate)}T${selectedSlot.horaInicio}:00Z`);
       await api.post("/api/citas", {
         coachId: selectedCoach.id,
         fechaInicio: fechaInicio.toISOString(),

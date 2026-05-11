@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../utils/prisma";
 import { authenticate, requireRol } from "../middleware/auth";
-import { getSlotsDisponibles, isSlotDisponible, jsDayToNuestro } from "../services/disponibilidad";
+import { getSlotsDisponibles, jsDayToNuestro } from "../services/disponibilidad";
 import { encolarNotificacion } from "../services/notificaciones";
 import { getCancelationWindow } from "../services/vip";
 
@@ -94,20 +94,35 @@ router.post("/", authenticate, requireRol("CLIENTE"), async (req: Request, res: 
     return;
   }
 
-  // Obtener duración del horario del coach para ese día
-  const diaSemana = jsDayToNuestro(fechaInicio.getDay());
+  // Validar disponibilidad usando el mismo código que muestra los slots al cliente
+  // — garantiza consistencia sin importar el timezone del servidor.
+  const fechaStr = fechaInicio.toISOString().slice(0, 10); // YYYY-MM-DD en UTC
+  const slotHora = `${fechaInicio.getUTCHours().toString().padStart(2, "0")}:${fechaInicio.getUTCMinutes().toString().padStart(2, "0")}`;
+
+  const slotsDelDia = await getSlotsDisponibles(coach.id, fechaStr);
+  const slotSolicitado = slotsDelDia.find((s) => s.horaInicio === slotHora);
+
+  if (!slotSolicitado) {
+    res.status(409).json({ error: "El horario solicitado no existe en la agenda del coach" });
+    return;
+  }
+  if (!slotSolicitado.disponible) {
+    const msg =
+      slotSolicitado.razon === "pasado"  ? "Este horario ya pasó" :
+      slotSolicitado.razon === "ocupado" ? "Este horario ya está reservado" :
+      "Horario no disponible";
+    res.status(409).json({ error: msg });
+    return;
+  }
+
+  // Obtener duración real del horario (usando UTC para el día)
+  const diaSemana = jsDayToNuestro(fechaInicio.getUTCDay());
   const horario = await prisma.horarioCoach.findUnique({
     where: { coachId_diaSemana: { coachId: coach.id, diaSemana } },
   });
 
   const duracion = horario?.duracionCitaMinutos ?? 30;
   const fechaFin = new Date(fechaInicio.getTime() + duracion * 60000);
-
-  const { ok, razon } = await isSlotDisponible(coach.id, fechaInicio, duracion);
-  if (!ok) {
-    res.status(409).json({ error: razon });
-    return;
-  }
 
   const cita = await prisma.cita.create({
     data: {
