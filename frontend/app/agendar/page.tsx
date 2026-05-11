@@ -64,10 +64,17 @@ export default function AgendarPage() {
     setBooking(true);
     setError("");
     try {
-      const fechaInicio = new Date(`${toDateStr(selectedDate)}T${selectedSlot.horaInicio}:00Z`);
+      // Los slots se muestran en hora Colombia (UTC-5).
+      // Convertimos a UTC sumando 5h antes de enviar al backend.
+      const [slotH, slotM] = selectedSlot.horaInicio.split(":").map(Number);
+      const utcH = slotH + 5;
+      const isoDate = utcH >= 24
+        ? toDateStr(addDays(selectedDate!, 1))
+        : toDateStr(selectedDate!);
+      const fechaInicio = `${isoDate}T${String(utcH % 24).padStart(2, "0")}:${String(slotM).padStart(2, "0")}:00.000Z`;
       await api.post("/api/citas", {
         coachId: selectedCoach.id,
-        fechaInicio: fechaInicio.toISOString(),
+        fechaInicio,
       });
       setSuccess(true);
     } catch (err: any) {

@@ -94,10 +94,11 @@ router.post("/", authenticate, requireRol("CLIENTE"), async (req: Request, res: 
     return;
   }
 
-  // Validar disponibilidad usando el mismo código que muestra los slots al cliente
-  // — garantiza consistencia sin importar el timezone del servidor.
-  const fechaStr = fechaInicio.toISOString().slice(0, 10); // YYYY-MM-DD en UTC
-  const slotHora = `${fechaInicio.getUTCHours().toString().padStart(2, "0")}:${fechaInicio.getUTCMinutes().toString().padStart(2, "0")}`;
+  // Convertir a hora Colombia (UTC-5) para comparar con los slots del horario
+  const COL_OFFSET_MS = 5 * 60 * 60 * 1000;
+  const fechaCol = new Date(fechaInicio.getTime() - COL_OFFSET_MS);
+  const fechaStr = fechaCol.toISOString().slice(0, 10); // YYYY-MM-DD en hora Colombia
+  const slotHora = `${String(fechaCol.getUTCHours()).padStart(2, "0")}:${String(fechaCol.getUTCMinutes()).padStart(2, "0")}`;
 
   const slotsDelDia = await getSlotsDisponibles(coach.id, fechaStr);
   const slotSolicitado = slotsDelDia.find((s) => s.horaInicio === slotHora);
@@ -115,8 +116,8 @@ router.post("/", authenticate, requireRol("CLIENTE"), async (req: Request, res: 
     return;
   }
 
-  // Obtener duración real del horario (usando UTC para el día)
-  const diaSemana = jsDayToNuestro(fechaInicio.getUTCDay());
+  // Obtener duración real del horario (día de semana en hora Colombia)
+  const diaSemana = jsDayToNuestro(fechaCol.getUTCDay());
   const horario = await prisma.horarioCoach.findUnique({
     where: { coachId_diaSemana: { coachId: coach.id, diaSemana } },
   });
@@ -138,12 +139,12 @@ router.post("/", authenticate, requireRol("CLIENTE"), async (req: Request, res: 
     },
   });
 
-  // Notificar confirmación
+  // Notificar confirmación (mostrar hora en zona Colombia)
   await encolarNotificacion("CITA_CONFIRMADA", cliente.usuario.email, {
     nombreCliente: cliente.usuario.nombre,
     nombreCoach: coach.usuario.nombre,
-    fecha: fechaInicio.toLocaleDateString("es-CL"),
-    hora: fechaInicio.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }),
+    fecha: fechaInicio.toLocaleDateString("es-CO", { timeZone: "America/Bogota" }),
+    hora: fechaInicio.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", timeZone: "America/Bogota" }),
   });
 
   res.status(201).json(cita);
@@ -233,12 +234,12 @@ router.patch("/:id/cancelar", authenticate, async (req: Request, res: Response) 
     data: { estado: "CANCELADA" },
   });
 
-  // Notificar cancelación al cliente
+  // Notificar cancelación al cliente (hora Colombia)
   await encolarNotificacion("CITA_CANCELADA", cita.cliente.usuario.email, {
     nombreCliente: cita.cliente.usuario.nombre,
     nombreCoach: cita.coach.usuario.nombre,
-    fecha: cita.fechaInicio.toLocaleDateString("es-CL"),
-    hora: cita.fechaInicio.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }),
+    fecha: cita.fechaInicio.toLocaleDateString("es-CO", { timeZone: "America/Bogota" }),
+    hora: cita.fechaInicio.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit", timeZone: "America/Bogota" }),
   });
 
   res.json(citaCancelada);
@@ -286,8 +287,10 @@ router.patch("/:id/reasignar", authenticate, requireRol("ADMIN"), async (req: Re
     return;
   }
 
-  // Obtener la duración del horario del nuevo coach para ese día
-  const diaSemana = jsDayToNuestro(cita.fechaInicio.getUTCDay());
+  // Obtener la duración del horario del nuevo coach (día en hora Colombia)
+  const COL_OFFSET_MS_R = 5 * 60 * 60 * 1000;
+  const citaFechaCol = new Date(cita.fechaInicio.getTime() - COL_OFFSET_MS_R);
+  const diaSemana = jsDayToNuestro(citaFechaCol.getUTCDay());
   const horario = await prisma.horarioCoach.findUnique({
     where: { coachId_diaSemana: { coachId: nuevoCoachId, diaSemana } },
   });
