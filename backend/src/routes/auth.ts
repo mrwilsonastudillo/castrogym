@@ -94,8 +94,8 @@ function buildJwtResponse(usuario: {
   email: string;
   nombre: string;
   rol: string;
-  cliente?: { id: string } | null;
-  coach?: { id: string } | null;
+  cliente?: { id: string; esVIP?: boolean; avatarPersonaje?: string | null } | null;
+  coach?: { id: string; fotoPerfil?: string | null } | null;
 }) {
   const token = jwt.sign(
     { userId: usuario.id, email: usuario.email, rol: usuario.rol },
@@ -111,6 +111,9 @@ function buildJwtResponse(usuario: {
       rol: usuario.rol,
       clienteId: usuario.cliente?.id ?? null,
       coachId: usuario.coach?.id ?? null,
+      esVIP: usuario.cliente?.esVIP ?? false,
+      avatarPersonaje: usuario.cliente?.avatarPersonaje ?? null,
+      fotoPerfil: usuario.coach?.fotoPerfil ?? null,
     },
   };
 }

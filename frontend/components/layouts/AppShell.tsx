@@ -36,8 +36,9 @@ const navItems: NavItem[] = [
   { href: "/horarios", label: "Horarios", icon: <Clock size={18} />, roles: ["COACH"] },
   { href: "/clientes", label: "Clientes", icon: <Users size={18} />, roles: ["ADMIN", "COACH"] },
   { href: "/coaches", label: "Coaches", icon: <Users size={18} />, roles: ["ADMIN"] },
-  { href: "/admin/membresias", label: "Membresías", icon: <CreditCard size={18} />, roles: ["ADMIN"] },
-  { href: "/admin/contenido", label: "Políticas", icon: <Shield size={18} />, roles: ["ADMIN"] },
+  { href: "/admin/horarios",   label: "Gest. horarios", icon: <Clock size={18} />,    roles: ["ADMIN"] },
+  { href: "/admin/membresias", label: "Membresías",    icon: <CreditCard size={18} />, roles: ["ADMIN"] },
+  { href: "/admin/contenido",  label: "Políticas",     icon: <Shield size={18} />,    roles: ["ADMIN"] },
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {

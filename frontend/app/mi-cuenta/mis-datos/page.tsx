@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import ProtectedPage from "@/components/layouts/ProtectedPage";
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Alert, Badge } from "@/components/ui";
@@ -36,6 +36,12 @@ export default function MisDatosPage() {
   );
   const [fotoSaving, setFotoSaving] = useState(false);
   const fotoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (user?.fotoPerfil) {
+      setFotoPreview(`${API}${user.fotoPerfil}`);
+    }
+  }, [user?.fotoPerfil]);
 
   // ── CLIENTE: estados existentes ────────────────────
   const [exportando, setExportando] = useState(false);
