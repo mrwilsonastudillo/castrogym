@@ -7,7 +7,7 @@ async function jobMembresias() {
 
   // Marcar como VENCIDA las que caducaron
   const vencidas = await prisma.membresia.findMany({
-    where: { estado: "ACTIVA", fechaFin: { lt: ahora } },
+    where: { estado: "ACTIVA", fechaFin: { lt: ahora }, cliente: { usuario: { activo: true } } },
     include: {
       cliente: { include: { usuario: { select: { email: true, nombre: true } } } },
     },
@@ -44,6 +44,7 @@ async function jobMembresias() {
     where: {
       estado: "ACTIVA",
       fechaFin: { gte: ahora, lte: en7Dias },
+      cliente: { usuario: { activo: true } },
     },
     include: {
       cliente: { include: { usuario: { select: { email: true, nombre: true } } } },
