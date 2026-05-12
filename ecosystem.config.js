@@ -26,7 +26,7 @@ module.exports = {
         PORT: 3000,
         // Nota: NEXT_PUBLIC_* se hornea en el build, no en runtime.
         // Este valor es referencia — lo que importa es pasarlo en npm run build (ver deploy.sh).
-        NEXT_PUBLIC_API_URL: "https://castrogym.com",
+        NEXT_PUBLIC_API_URL: "https://castrogym.com/agendamedidas",
       },
     },
   ],
