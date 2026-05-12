@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import nodemailer from "nodemailer";
 import { z } from "zod";
 import { prisma } from "../utils/prisma";
 import { env } from "../utils/env";
@@ -74,24 +75,23 @@ async function getFacebookUser(
   }
 }
 
+const mailer = nodemailer.createTransport({
+  host: env.SMTP_HOST,
+  port: env.SMTP_PORT,
+  secure: env.SMTP_PORT === 465,
+  auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+});
+
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  if (!env.RESEND_API_KEY) {
-    console.warn(`[email] RESEND_API_KEY no configurado. Para: ${to} | Asunto: ${subject}`);
+  if (!env.SMTP_USER || !env.SMTP_PASS) {
+    console.warn(`[email] SMTP no configurado. Para: ${to} | Asunto: ${subject}`);
     return;
   }
-  const res = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ from: env.RESEND_FROM, to: [to], subject, html }),
-  });
-  if (!res.ok) {
-    const body = await res.text();
-    console.error(`[email] Error Resend (${res.status}): ${body}`);
-  } else {
+  try {
+    await mailer.sendMail({ from: env.SMTP_FROM, to, subject, html });
     console.log(`[email] Enviado a ${to} | Asunto: ${subject}`);
+  } catch (err) {
+    console.error(`[email] Error SMTP:`, err);
   }
 }
 

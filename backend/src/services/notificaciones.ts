@@ -1,4 +1,13 @@
+import nodemailer from "nodemailer";
 import { prisma } from "../utils/prisma";
+import { env } from "../utils/env";
+
+const mailer = nodemailer.createTransport({
+  host: env.SMTP_HOST,
+  port: env.SMTP_PORT,
+  secure: env.SMTP_PORT === 465,
+  auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
+});
 
 type TipoNotificacion =
   | "CITA_CONFIRMADA"
@@ -74,8 +83,7 @@ function renderTemplate(tipo: TipoNotificacion, datos: Record<string, unknown>):
 }
 
 export async function procesarNotificaciones() {
-  const resendKey = process.env.RESEND_API_KEY;
-  if (!resendKey) return; // No configurado
+  if (!env.SMTP_USER || !env.SMTP_PASS) return; // No configurado
 
   const pendientes = await prisma.notificacionPendiente.findMany({
     where: { estado: "PENDIENTE", intentos: { lt: 3 } },
@@ -88,31 +96,11 @@ export async function procesarNotificaciones() {
     const { subject, html } = renderTemplate(notif.tipo as TipoNotificacion, datos);
 
     try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: process.env.RESEND_FROM ?? "Castro Gym <noreply@castrogym.com>",
-          to: [notif.destinatario],
-          subject,
-          html,
-        }),
+      await mailer.sendMail({ from: env.SMTP_FROM, to: notif.destinatario, subject, html });
+      await prisma.notificacionPendiente.update({
+        where: { id: notif.id },
+        data: { estado: "ENVIADA", fechaEnvio: new Date(), intentos: { increment: 1 } },
       });
-
-      if (res.ok) {
-        await prisma.notificacionPendiente.update({
-          where: { id: notif.id },
-          data: { estado: "ENVIADA", fechaEnvio: new Date(), intentos: { increment: 1 } },
-        });
-      } else {
-        await prisma.notificacionPendiente.update({
-          where: { id: notif.id },
-          data: { intentos: { increment: 1 } },
-        });
-      }
     } catch {
       await prisma.notificacionPendiente.update({
         where: { id: notif.id },
