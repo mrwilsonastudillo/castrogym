@@ -76,10 +76,10 @@ async function getFacebookUser(
 
 async function sendEmail(to: string, subject: string, html: string): Promise<void> {
   if (!env.RESEND_API_KEY) {
-    console.log(`[email] Para: ${to} | Asunto: ${subject}`);
+    console.warn(`[email] RESEND_API_KEY no configurado. Para: ${to} | Asunto: ${subject}`);
     return;
   }
-  await fetch("https://api.resend.com/emails", {
+  const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${env.RESEND_API_KEY}`,
@@ -87,6 +87,12 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
     },
     body: JSON.stringify({ from: env.RESEND_FROM, to: [to], subject, html }),
   });
+  if (!res.ok) {
+    const body = await res.text();
+    console.error(`[email] Error Resend (${res.status}): ${body}`);
+  } else {
+    console.log(`[email] Enviado a ${to} | Asunto: ${subject}`);
+  }
 }
 
 function buildJwtResponse(usuario: {
