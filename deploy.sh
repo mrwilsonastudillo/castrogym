@@ -37,7 +37,8 @@ cd "$APP_DIR/frontend"
 npm install --omit=dev
 
 echo "  Compilando Next.js..."
-npm run build
+# NEXT_PUBLIC_API_URL debe apuntar al dominio raíz (nginx proxia /api y /uploads al backend)
+NEXT_PUBLIC_API_URL=https://castrogym.com npm run build
 
 # 4. Reiniciar procesos con PM2
 echo "[4/5] Reiniciando servicios con PM2..."
