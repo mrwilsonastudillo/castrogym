@@ -22,9 +22,7 @@ echo "[2/5] Instalando dependencias del backend..."
 cd "$APP_DIR/backend"
 npm install --omit=dev
 
-echo "  Preparando Prisma para PostgreSQL..."
-# Cambia provider a postgresql para producción (el schema en git usa sqlite)
-sed -i 's/provider = "sqlite"/provider = "postgresql"/' prisma/schema.prisma
+echo "  Preparando Prisma (SQLite)..."
 npx prisma generate
 npx prisma db push
 
@@ -47,12 +45,7 @@ cd "$APP_DIR"
 pm2 reload ecosystem.config.js --update-env || pm2 start ecosystem.config.js
 pm2 save
 
-# 5. Restaurar schema para dev (opcional: comenta si no usas dev en el VPS)
-echo "[5/5] Restaurando schema sqlite para desarrollo local..."
-cd "$APP_DIR/backend"
-sed -i 's/provider = "postgresql"/provider = "sqlite"/' prisma/schema.prisma
-
 echo ""
 echo "✓ Deploy completado exitosamente"
-echo "  Frontend: https://castrogym.com"
-echo "  Backend:  https://castrogym.com/api/health"
+echo "  Frontend: https://castrogym.com/agendamedidas"
+echo "  Backend:  https://castrogym.com/agendamedidas/api/health"
