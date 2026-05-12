@@ -115,18 +115,18 @@ export default function AppShell({ children }: { children: ReactNode }) {
       </div>
 
       {/* Mobile nav */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-10 flex bg-white border-t border-gray-200">
-        {visible.slice(0, 4).map((item) => (
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-10 flex overflow-x-auto bg-white border-t border-gray-200 scrollbar-none">
+        {visible.map((item) => (
           <Link
             key={item.href}
             href={item.href}
             className={cn(
-              "flex-1 flex flex-col items-center gap-0.5 py-2 text-xs font-medium transition-colors",
+              "flex-shrink-0 flex flex-col items-center gap-0.5 px-3 py-2 text-xs font-medium transition-colors",
               pathname.startsWith(item.href) ? "text-sky-600" : "text-gray-500"
             )}
           >
             {item.icon}
-            <span className="text-[10px]">{item.label.split(" ")[0]}</span>
+            <span className="text-[10px] whitespace-nowrap">{item.label.split(" ")[0]}</span>
           </Link>
         ))}
       </nav>
