@@ -293,6 +293,26 @@ router.patch("/:id", authenticate, requireRol("ADMIN"), async (req: Request, res
   res.json(updated);
 });
 
+// ─── Reset password de coach: solo admin ─────────────────────────────────────
+router.patch("/:id/reset-password", authenticate, requireRol("ADMIN"), async (req: Request, res: Response) => {
+  const { nuevaPassword } = req.body;
+  if (!nuevaPassword || typeof nuevaPassword !== "string" || nuevaPassword.length < 6) {
+    res.status(400).json({ error: "nuevaPassword debe tener al menos 6 caracteres" });
+    return;
+  }
+
+  const coach = await prisma.coach.findUnique({ where: { id: req.params.id } });
+  if (!coach) {
+    res.status(404).json({ error: "Coach no encontrado" });
+    return;
+  }
+
+  const passwordHash = await bcrypt.hash(nuevaPassword, 10);
+  await prisma.usuario.update({ where: { id: coach.usuarioId }, data: { passwordHash } });
+
+  res.json({ message: "Contraseña actualizada correctamente" });
+});
+
 // ─── Activar / desactivar coach: solo admin ──────────────────────────────────
 router.patch("/:id/activo", authenticate, requireRol("ADMIN"), async (req: Request, res: Response) => {
   const coach = await prisma.coach.findUnique({ where: { id: req.params.id } });

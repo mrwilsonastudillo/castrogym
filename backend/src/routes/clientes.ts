@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import { prisma } from "../utils/prisma";
 import { authenticate, requireRol } from "../middleware/auth";
 import { calcularEstadoMembresia } from "./membresias";
@@ -11,6 +12,14 @@ const UpdateClienteSchema = z.object({
   telefono: z.string().min(8).optional(),
   objetivo: z.enum(["PERDIDA_PESO", "GANANCIA_MUSCULAR", "TONIFICACION", "OTRO"]).optional(),
   limitacionesFisicas: z.string().optional(),
+});
+
+// Admin puede editar además: género, fecha nacimiento, email y password
+const UpdateClienteAdminSchema = UpdateClienteSchema.extend({
+  genero: z.enum(["M", "F"]).optional(),
+  fechaNacimiento: z.string().datetime().optional(),
+  email: z.string().email().optional(),
+  password: z.string().min(6).optional(),
 });
 
 function getNivelAvatar(totalMediciones: number): { nivel: number; nombre: string } {
@@ -173,20 +182,41 @@ router.patch("/:id", authenticate, async (req: Request, res: Response) => {
     return;
   }
 
-  const parsed = UpdateClienteSchema.safeParse(req.body);
+  // Admin usa schema extendido; cliente usa schema base
+  const schema = user.rol === "ADMIN" ? UpdateClienteAdminSchema : UpdateClienteSchema;
+  const parsed = schema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.flatten().fieldErrors });
     return;
   }
 
-  const { nombre, ...clienteData } = parsed.data;
+  const { nombre, email, password, genero, fechaNacimiento, ...clienteData } = parsed.data as any;
+
+  // Verificar email único si el admin lo cambia
+  if (email) {
+    const existe = await prisma.usuario.findFirst({
+      where: { email, NOT: { id: cliente.usuarioId } },
+    });
+    if (existe) {
+      res.status(409).json({ error: "Email ya registrado" });
+      return;
+    }
+  }
 
   await prisma.$transaction(async (tx) => {
-    if (nombre) {
-      await tx.usuario.update({ where: { id: cliente.usuarioId }, data: { nombre } });
+    const usuarioData: Record<string, unknown> = {};
+    if (nombre) usuarioData.nombre = nombre;
+    if (email)  usuarioData.email  = email;
+    if (password) usuarioData.passwordHash = await bcrypt.hash(password, 10);
+    if (Object.keys(usuarioData).length > 0) {
+      await tx.usuario.update({ where: { id: cliente.usuarioId }, data: usuarioData });
     }
-    if (Object.keys(clienteData).length > 0) {
-      await tx.cliente.update({ where: { id: req.params.id }, data: clienteData });
+
+    const clienteUpdate: Record<string, unknown> = { ...clienteData };
+    if (genero) clienteUpdate.genero = genero;
+    if (fechaNacimiento) clienteUpdate.fechaNacimiento = new Date(fechaNacimiento);
+    if (Object.keys(clienteUpdate).length > 0) {
+      await tx.cliente.update({ where: { id: req.params.id }, data: clienteUpdate });
     }
   });
 

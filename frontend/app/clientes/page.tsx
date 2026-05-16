@@ -163,13 +163,14 @@ export default function ClientesPage() {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => router.push(`/admin/membresias?cliente=${c.id}`)}
-                        >
-                          Ver →
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="sm" onClick={() => router.push(`/clientes/${c.id}`)}>
+                            Editar
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => router.push(`/admin/membresias?cliente=${c.id}`)}>
+                            Membresía
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -183,7 +184,7 @@ export default function ClientesPage() {
                 <div
                   key={c.id}
                   className="bg-white border border-gray-200 rounded-xl px-4 py-3.5 flex items-center gap-3 cursor-pointer hover:border-gray-300 hover:shadow-sm transition-all"
-                  onClick={() => router.push(`/admin/membresias?cliente=${c.id}`)}
+                  onClick={() => router.push(`/clientes/${c.id}`)}
                 >
                   <UserAvatar
                     personajeId={(c as any).avatarPersonaje ?? null}

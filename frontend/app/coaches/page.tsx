@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Plus, X, Pencil, Power } from "lucide-react";
+import { Plus, X, Pencil, Power, KeyRound } from "lucide-react";
 import { api, Coach } from "@/lib/api";
 import ProtectedPage from "@/components/layouts/ProtectedPage";
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Alert, Spinner, Badge } from "@/components/ui";
@@ -35,6 +35,9 @@ export default function CoachesPage() {
   const [editCoach, setEditCoach] = useState<Coach | null>(null);
   const [editForm, setEditForm] = useState<EditForm>({ nombre: "", email: "", especialidad: "", telefono: "" });
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [resetCoach, setResetCoach] = useState<Coach | null>(null);
+  const [resetPwd, setResetPwd]     = useState("coach123");
+  const [resetting, setResetting]   = useState(false);
 
   function loadCoaches() {
     api.get<Coach[]>("/api/coaches/all").then(setCoaches).finally(() => setLoading(false));
@@ -107,6 +110,21 @@ export default function CoachesPage() {
     }
   }
 
+  async function handleResetPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!resetCoach) return;
+    setResetting(true); setError("");
+    try {
+      await api.patch(`/api/coaches/${resetCoach.id}/reset-password`, { nuevaPassword: resetPwd });
+      setSuccessMsg(`Contraseña de ${resetCoach.usuario.nombre} actualizada`);
+      setResetCoach(null); setResetPwd("coach123");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setResetting(false);
+    }
+  }
+
   async function handleToggleActivo(coach: Coach) {
     setTogglingId(coach.id);
     setError("");
@@ -148,6 +166,33 @@ export default function CoachesPage() {
                   <Input id="telefono" label="Teléfono" placeholder="+56912345678" value={form.telefono} onChange={set("telefono")} />
                 </div>
                 <Button type="submit" loading={saving}>Crear coach</Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Modal reset password */}
+        {resetCoach && (
+          <Card className="border-orange-200">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Reset contraseña — {resetCoach.usuario.nombre}</CardTitle>
+                <button onClick={() => setResetCoach(null)} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleResetPassword} className="flex gap-3 items-end">
+                <Input
+                  id="reset-pwd"
+                  label="Nueva contraseña"
+                  type="text"
+                  value={resetPwd}
+                  onChange={(e) => setResetPwd(e.target.value)}
+                  required
+                  className="flex-1"
+                />
+                <Button type="submit" loading={resetting}>Guardar</Button>
+                <Button type="button" variant="secondary" onClick={() => setResetCoach(null)}>Cancelar</Button>
               </form>
             </CardContent>
           </Card>
@@ -218,13 +263,16 @@ export default function CoachesPage() {
                       {c.activo ? "Activo" : "Inactivo"}
                     </Badge>
                     <span className="text-xs text-gray-400">{c.horarios.length} días</span>
+                    <Button size="sm" variant="ghost" onClick={() => openEdit(c)} title="Editar">
+                      <Pencil size={14} />
+                    </Button>
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => openEdit(c)}
-                      title="Editar"
+                      onClick={() => { setResetCoach(c); setResetPwd("coach123"); setError(""); }}
+                      title="Reset contraseña"
                     >
-                      <Pencil size={14} />
+                      <KeyRound size={14} />
                     </Button>
                     <Button
                       size="sm"

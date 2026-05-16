@@ -198,6 +198,97 @@ router.post("/", authenticate, requireRol("COACH", "ADMIN"), async (req: Request
   res.status(201).json(medicion);
 });
 
+// Editar medición: solo admin (corrección de errores de ingreso)
+router.patch("/:id", authenticate, requireRol("ADMIN"), async (req: Request, res: Response) => {
+  const medicion = await prisma.medicion.findUnique({
+    where: { id: req.params.id },
+    include: { cliente: true },
+  });
+  if (!medicion) {
+    res.status(404).json({ error: "Medición no encontrada" });
+    return;
+  }
+
+  const EditSchema = z.object({
+    pesoKg:           z.number().positive().optional(),
+    estaturaCm:       z.number().int().min(50).max(250).optional(),
+    toraxCm:          z.number().int().positive().optional().nullable(),
+    cinturaCm:        z.number().int().positive().optional().nullable(),
+    caderaCm:         z.number().int().positive().optional().nullable(),
+    bicepsCm:         z.number().int().positive().optional().nullable(),
+    musloCm:          z.number().int().positive().optional().nullable(),
+    pantorrillaCm:    z.number().int().positive().optional().nullable(),
+    porcentajeGrasa:  z.number().positive().optional().nullable(),
+    masaMuscular:     z.number().positive().optional().nullable(),
+    densidadOsea:     z.number().positive().optional().nullable(),
+    notas:            z.string().optional().nullable(),
+  });
+
+  const parsed = EditSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+    return;
+  }
+
+  const data = parsed.data;
+
+  // Usar valores actualizados o los existentes para recalcular
+  const pesoKg     = data.pesoKg     ?? medicion.pesoKg;
+  const estaturaCm = data.estaturaCm ?? medicion.estaturaCm;
+  const cinturaCm  = data.cinturaCm  !== undefined ? data.cinturaCm  : medicion.cinturaCm;
+  const caderaCm   = data.caderaCm   !== undefined ? data.caderaCm   : medicion.caderaCm;
+
+  // Recalcular IMC
+  const estaturaM = estaturaCm / 100;
+  const imc = parseFloat((pesoKg / (estaturaM * estaturaM)).toFixed(2));
+
+  // Recalcular ICC si hay cintura y cadera
+  let icc: number | null = medicion.icc;
+  let iccClasificacion: string | null = medicion.iccClasificacion;
+  if (cinturaCm && caderaCm) {
+    const r = calcularICC(cinturaCm, caderaCm, medicion.cliente.genero);
+    icc = r.icc;
+    iccClasificacion = r.clasificacion;
+  } else if (cinturaCm === null || caderaCm === null) {
+    icc = null;
+    iccClasificacion = null;
+  }
+
+  // Recalcular grasa estimada solo si era estimada y no se provee manual
+  let porcentajeGrasa = data.porcentajeGrasa !== undefined ? data.porcentajeGrasa : medicion.porcentajeGrasa;
+  let grasaEstimada = medicion.grasaEstimada;
+  if (data.porcentajeGrasa === undefined && medicion.grasaEstimada) {
+    porcentajeGrasa = calcularGrasaEstimada(imc, medicion.cliente.fechaNacimiento, medicion.cliente.genero);
+  }
+  if (data.porcentajeGrasa !== undefined && data.porcentajeGrasa !== null) {
+    grasaEstimada = false; // pasó a ser manual
+  }
+
+  const actualizada = await prisma.medicion.update({
+    where: { id: req.params.id },
+    data: {
+      pesoKg,
+      estaturaCm,
+      imc,
+      icc,
+      iccClasificacion,
+      toraxCm:         data.toraxCm         !== undefined ? data.toraxCm         : medicion.toraxCm,
+      cinturaCm,
+      caderaCm,
+      bicepsCm:        data.bicepsCm        !== undefined ? data.bicepsCm        : medicion.bicepsCm,
+      musloCm:         data.musloCm         !== undefined ? data.musloCm         : medicion.musloCm,
+      pantorrillaCm:   data.pantorrillaCm   !== undefined ? data.pantorrillaCm   : medicion.pantorrillaCm,
+      porcentajeGrasa,
+      masaMuscular:    data.masaMuscular    !== undefined ? data.masaMuscular    : medicion.masaMuscular,
+      densidadOsea:    data.densidadOsea    !== undefined ? data.densidadOsea    : medicion.densidadOsea,
+      grasaEstimada,
+      notas:           data.notas           !== undefined ? data.notas           : medicion.notas,
+    },
+  });
+
+  res.json(actualizada);
+});
+
 // Historial de mediciones de un cliente
 router.get("/cliente/:clienteId", authenticate, async (req: Request, res: Response) => {
   const { clienteId } = req.params;
