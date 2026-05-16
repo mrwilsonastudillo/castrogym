@@ -102,11 +102,38 @@ export default function CitaPage() {
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
   }
 
+  /** Solo dígitos enteros — elimina cualquier carácter que no sea 0-9 */
+  function setInt(field: keyof MedicionForm) {
+    return (e: React.ChangeEvent<HTMLInputElement>) => {
+      const onlyDigits = e.target.value.replace(/[^0-9]/g, "");
+      setForm((prev) => ({ ...prev, [field]: onlyDigits }));
+    };
+  }
+
+  /** Bloquea teclas de punto y coma para campos de enteros */
+  function blockDecimalKeys(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "." || e.key === ",") e.preventDefault();
+  }
+
+  const CM_INT_FIELDS: (keyof MedicionForm)[] = [
+    "estaturaCm", "toraxCm", "cinturaCm", "caderaCm", "bicepsCm", "musloCm", "pantorrillaCm",
+  ];
+
   async function handleSave() {
     if (!cita) return;
     if (!form.pesoKg || !form.estaturaCm) {
       setError("Peso y estatura son obligatorios.");
       return;
+    }
+    // Validar que los campos cm no tengan decimales
+    for (const field of CM_INT_FIELDS) {
+      const val = form[field];
+      if (val && !/^\d+$/.test(val)) {
+        setError(
+          `El campo "${field.replace("Cm", "")} (cm)" debe ser un número entero (ej: 165, no 1.65).`
+        );
+        return;
+      }
     }
     setSaving(true);
     setError("");
@@ -230,11 +257,13 @@ export default function CitaPage() {
                 id="estatura"
                 label="Estatura (cm)"
                 type="number"
+                step="1"
                 min="100"
                 max="250"
                 placeholder="175"
                 value={form.estaturaCm}
-                onChange={set("estaturaCm")}
+                onChange={setInt("estaturaCm")}
+                onKeyDown={blockDecimalKeys}
                 required
               />
             </div>
@@ -269,12 +298,12 @@ export default function CitaPage() {
           <CardContent className="space-y-4">
             <ICCGuia />
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <Input id="torax"       label="Tórax (cm)"       type="number" placeholder="100" value={form.toraxCm}       onChange={set("toraxCm")} />
-              <Input id="cintura"     label="Cintura (cm)"     type="number" placeholder="90"  value={form.cinturaCm}     onChange={set("cinturaCm")} />
-              <Input id="cadera"      label="Cadera (cm)"      type="number" placeholder="98"  value={form.caderaCm}      onChange={set("caderaCm")} />
-              <Input id="biceps"      label="Bíceps (cm)"      type="number" placeholder="35"  value={form.bicepsCm}      onChange={set("bicepsCm")} />
-              <Input id="muslo"       label="Muslo (cm)"       type="number" placeholder="58"  value={form.musloCm}       onChange={set("musloCm")} />
-              <Input id="pantorrilla" label="Pantorrilla (cm)" type="number" placeholder="38"  value={form.pantorrillaCm} onChange={set("pantorrillaCm")} />
+              <Input id="torax"       label="Tórax (cm)"       type="number" step="1" placeholder="100" value={form.toraxCm}       onChange={setInt("toraxCm")}       onKeyDown={blockDecimalKeys} />
+              <Input id="cintura"     label="Cintura (cm)"     type="number" step="1" placeholder="90"  value={form.cinturaCm}     onChange={setInt("cinturaCm")}     onKeyDown={blockDecimalKeys} />
+              <Input id="cadera"      label="Cadera (cm)"      type="number" step="1" placeholder="98"  value={form.caderaCm}      onChange={setInt("caderaCm")}      onKeyDown={blockDecimalKeys} />
+              <Input id="biceps"      label="Bíceps (cm)"      type="number" step="1" placeholder="35"  value={form.bicepsCm}      onChange={setInt("bicepsCm")}      onKeyDown={blockDecimalKeys} />
+              <Input id="muslo"       label="Muslo (cm)"       type="number" step="1" placeholder="58"  value={form.musloCm}       onChange={setInt("musloCm")}       onKeyDown={blockDecimalKeys} />
+              <Input id="pantorrilla" label="Pantorrilla (cm)" type="number" step="1" placeholder="38"  value={form.pantorrillaCm} onChange={setInt("pantorrillaCm")} onKeyDown={blockDecimalKeys} />
             </div>
 
             {/* ICC en tiempo real */}
