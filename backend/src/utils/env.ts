@@ -22,11 +22,9 @@ export const env = {
   FACEBOOK_APP_ID: process.env.FACEBOOK_APP_ID ?? "",
   FACEBOOK_APP_SECRET: process.env.FACEBOOK_APP_SECRET ?? "",
   RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY ?? "",
-  // Mailgun SMTP
-  SMTP_HOST: process.env.SMTP_HOST ?? "smtp.mailgun.org",
-  SMTP_PORT: parseInt(process.env.SMTP_PORT ?? "587", 10),
-  SMTP_USER: process.env.SMTP_USER ?? "",
-  SMTP_PASS: process.env.SMTP_PASS ?? "",
-  SMTP_FROM: process.env.SMTP_FROM ?? "Castro Gym <noreply@castrogym.com>",
+  // Resend
+  RESEND_API_KEY: process.env.RESEND_API_KEY ?? "",
+  RESEND_FROM: process.env.RESEND_FROM ?? "Castro Gym <noreply@castrogym.com>",
+  APP_URL: process.env.APP_URL ?? "https://castrogym.com",
   FRONTEND_URL: process.env.FRONTEND_URL ?? "http://localhost:3000",
 };

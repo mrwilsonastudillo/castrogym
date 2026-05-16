@@ -86,9 +86,24 @@ DATABASE_URL="file:./prisma/dev.db"
 JWT_SECRET="..."
 PORT=3001
 CORS_ORIGIN="http://localhost:3000"
-RESEND_API_KEY="..."        # optional — notifications skip if missing
+# Resend (emails skip silently if RESEND_API_KEY is missing)
+RESEND_API_KEY="re_..."
 RESEND_FROM="Castro Gym <noreply@castrogym.com>"
+APP_URL="https://castrogym.com"
+FRONTEND_URL="https://castrogym.com"
 ```
+
+### Email (Resend)
+
+- Service: `src/services/email.ts` — centralizes the Resend client and all HTML templates
+- Queue: `src/services/notificaciones.ts` — wraps `encolarNotificacion()` and `procesarNotificaciones()`
+- If `RESEND_API_KEY` is not set, all email operations skip silently with a `console.warn`
+- Templates: bienvenida, citaConfirmada, recordatorio, citaCancelada, nuevaMedicion, membresiaPorVencer, membresiaVencida, membresiaActivada, recuperarContrasena
+
+**DNS records required for `castrogym.com` (configure in Resend dashboard):**
+- SPF: `v=spf1 include:amazonses.com ~all`
+- DKIM: provided by Resend after domain verification
+- DMARC: `v=DMARC1; p=none; rua=mailto:admin@castrogym.com`
 
 **Frontend** (create `frontend/.env.local`):
 ```

@@ -2,11 +2,11 @@ import { Router, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
-import nodemailer from "nodemailer";
 import { z } from "zod";
 import { prisma } from "../utils/prisma";
 import { env } from "../utils/env";
 import { authenticate } from "../middleware/auth";
+import { sendEmail, templateBienvenida, templateRecuperarContrasena } from "../services/email";
 
 const router = Router();
 
@@ -75,25 +75,6 @@ async function getFacebookUser(
   }
 }
 
-const mailer = nodemailer.createTransport({
-  host: env.SMTP_HOST,
-  port: env.SMTP_PORT,
-  secure: env.SMTP_PORT === 465,
-  auth: { user: env.SMTP_USER, pass: env.SMTP_PASS },
-});
-
-async function sendEmail(to: string, subject: string, html: string): Promise<void> {
-  if (!env.SMTP_USER || !env.SMTP_PASS) {
-    console.warn(`[email] SMTP no configurado. Para: ${to} | Asunto: ${subject}`);
-    return;
-  }
-  try {
-    await mailer.sendMail({ from: env.SMTP_FROM, to, subject, html });
-    console.log(`[email] Enviado a ${to} | Asunto: ${subject}`);
-  } catch (err) {
-    console.error(`[email] Error SMTP:`, err);
-  }
-}
 
 function buildJwtResponse(usuario: {
   id: string;
@@ -198,6 +179,10 @@ router.post("/register", async (req: Request, res: Response) => {
     },
     include: { cliente: true, coach: true },
   });
+
+  // Enviar bienvenida (fire & forget — no bloquea la respuesta)
+  const { subject, html } = templateBienvenida({ nombreCliente: usuario.nombre, appUrl: env.APP_URL });
+  sendEmail(usuario.email, subject, html).catch(() => {});
 
   res.status(201).json(buildJwtResponse(usuario));
 });
@@ -370,15 +355,8 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
 
   const resetUrl = `${env.FRONTEND_URL}/reset-password?token=${token}`;
 
-  await sendEmail(
-    usuario.email,
-    "Restablecer contraseña – Castro Gym",
-    `<p>Hola <b>${usuario.nombre}</b>,</p>
-<p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en Castro Gym.</p>
-<p>Haz clic en el siguiente enlace (válido por 1 hora):</p>
-<p><a href="${resetUrl}" style="background:#0ea5e9;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:600;">Restablecer contraseña</a></p>
-<p>Si no solicitaste esto, ignora este mensaje.</p>`
-  );
+  const { subject, html } = templateRecuperarContrasena({ nombreCliente: usuario.nombre, resetUrl });
+  await sendEmail(usuario.email, subject, html);
 
   res.json({ message: genericMsg });
 });
