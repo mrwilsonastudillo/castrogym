@@ -102,7 +102,7 @@ export function templateBienvenida(datos: Record<string, unknown>): { subject: s
         <p style="margin:0;font-size:14px;color:#0369a1;">Accede a tu cuenta para ver tu perfil, agendar citas y registrar tus mediciones.</p>
       </td></tr>
     </table>
-    ${btn(`${datos.appUrl ?? "https://castrogym.com"}/dashboard`, "Ir a mi cuenta")}
+    ${btn(`${datos.appUrl ?? "http://localhost:3000"}/dashboard`, "Ir a mi cuenta")}
     ${divider()}
     <p style="margin:0;font-size:13px;color:#94a3b8;">¿Necesitas ayuda? Contáctanos directamente en el gimnasio.</p>
   `;
@@ -179,7 +179,7 @@ export function templateCitaCancelada(datos: Record<string, unknown>): { subject
       </tr>
     </table>
     <p style="margin:0 0 8px;color:#475569;">Puedes agendar una nueva cita cuando quieras desde la app.</p>
-    ${btn(`${datos.appUrl ?? "https://castrogym.com"}/dashboard`, "Agendar nueva cita")}
+    ${btn(`${datos.appUrl ?? "http://localhost:3000"}/dashboard`, "Agendar nueva cita")}
   `;
   return {
     subject: "❌ Cita cancelada – Castro Gym",
@@ -200,7 +200,7 @@ export function templateNuevaMedicion(datos: Record<string, unknown>): { subject
       </tr>
     </table>
     <p style="margin:0 0 8px;color:#475569;">Ingresa a la app para ver tu reporte completo y seguimiento de progreso.</p>
-    ${btn(`${datos.appUrl ?? "https://castrogym.com"}/dashboard`, "Ver mi reporte")}
+    ${btn(`${datos.appUrl ?? "http://localhost:3000"}/dashboard`, "Ver mi reporte")}
   `;
   return {
     subject: "📊 Nueva medición registrada – Castro Gym",
@@ -264,7 +264,7 @@ export function templateMembresiaActivada(datos: Record<string, unknown>): { sub
         </td>
       </tr>
     </table>
-    ${btn(`${datos.appUrl ?? "https://castrogym.com"}/dashboard`, "Ver mi cuenta")}
+    ${btn(`${datos.appUrl ?? "http://localhost:3000"}/dashboard`, "Ver mi cuenta")}
   `;
   return {
     subject: "🎉 ¡Tu membresía está activa! – Castro Gym",

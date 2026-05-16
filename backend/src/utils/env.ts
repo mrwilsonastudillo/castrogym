@@ -25,6 +25,6 @@ export const env = {
   // Resend
   RESEND_API_KEY: process.env.RESEND_API_KEY ?? "",
   RESEND_FROM: process.env.RESEND_FROM ?? "Castro Gym <noreply@castrogym.com>",
-  APP_URL: process.env.APP_URL ?? "https://castrogym.com",
+  APP_URL: process.env.APP_URL ?? "http://localhost:3000",
   FRONTEND_URL: process.env.FRONTEND_URL ?? "http://localhost:3000",
 };
