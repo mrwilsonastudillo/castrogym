@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui";
 
@@ -33,11 +34,11 @@ export function NextActionCard({ action }: { action: NextAction }) {
           <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{action.message}</p>
         </div>
       </div>
-      <a href={action.cta.href} className="shrink-0">
+      <Link href={action.cta.href} className="shrink-0">
         <Button size="sm" variant="secondary" className="gap-1.5 whitespace-nowrap">
           {action.cta.label} <ArrowRight size={13} />
         </Button>
-      </a>
+      </Link>
     </div>
   );
 }

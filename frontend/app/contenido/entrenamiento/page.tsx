@@ -6,6 +6,7 @@ import ProtectedPage from "@/components/layouts/ProtectedPage";
 import { Card, CardContent, CardHeader, CardTitle, Button, Alert } from "@/components/ui";
 import { InsightCard } from "@/components/InsightCard";
 import { generateMeasurementRecommendations } from "@/lib/recommendations";
+import Link from "next/link";
 import { MessageCircle, Dumbbell, Sparkles } from "lucide-react";
 
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
@@ -85,9 +86,9 @@ export default function EntrenamientoPage() {
                   Registra tu primera medición para ver recomendaciones personalizadas.
                 </p>
                 <div className="mt-4">
-                  <a href="/agendamedidas/agendar">
+                  <Link href="/agendar">
                     <Button size="sm">Agendar cita</Button>
-                  </a>
+                  </Link>
                 </div>
               </div>
             )}

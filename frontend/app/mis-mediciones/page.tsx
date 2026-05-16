@@ -22,6 +22,7 @@ import { BodyMetricsGrid } from "@/components/BodyMetricsGrid";
 import { RangeIndicator } from "@/components/RangeIndicator";
 import { GamificationWidget } from "@/components/GamificationWidget";
 import { NextActionCard, type NextAction } from "@/components/NextActionCard";
+import Link from "next/link";
 import {
   Scale, Activity, TrendingDown, TrendingUp, Plus, Dumbbell,
   MessageCircle, Crown,
@@ -198,7 +199,7 @@ function getNextAction(reporte: Reporte): NextAction {
       type: "success",
       title: "¡Vas muy bien!",
       message: "Mantén tu rutina actual. Los resultados hablan por sí solos.",
-      cta: { label: "Ver plan", href: "/agendamedidas/contenido/entrenamiento" },
+      cta: { label: "Ver plan", href: "/contenido/entrenamiento" },
     };
   }
 
@@ -345,21 +346,21 @@ export default function MisMedicionesPage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-wrap gap-2">
-            <a href="/agendamedidas/agendar">
+            <Link href="/agendar">
               <Button size="sm" className="gap-1.5">
                 <Plus size={14} /> Nueva medición
               </Button>
-            </a>
-            <a href="/agendamedidas/contenido/entrenamiento">
+            </Link>
+            <Link href="/contenido/entrenamiento">
               <Button size="sm" variant="secondary" className="gap-1.5">
                 <Dumbbell size={14} /> Ver plan
               </Button>
-            </a>
-            <a href="/agendamedidas/agendar">
+            </Link>
+            <Link href="/agendar">
               <Button size="sm" variant="secondary" className="gap-1.5">
                 <MessageCircle size={14} /> Contactar coach
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -376,11 +377,11 @@ export default function MisMedicionesPage() {
                 y comenzar a ver tu progreso.
               </p>
               <div className="mt-6">
-                <a href="/agendamedidas/agendar">
+                <Link href="/agendar">
                   <Button>
                     <Plus size={15} className="mr-2" /> Agendar cita
                   </Button>
-                </a>
+                </Link>
               </div>
             </CardContent>
           </Card>

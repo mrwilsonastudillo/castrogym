@@ -5,6 +5,7 @@ import ProtectedPage from "@/components/layouts/ProtectedPage";
 import { Card, CardContent, CardHeader, CardTitle, Button, Input, Alert, Badge } from "@/components/ui";
 import { Download, Trash2, Shield, Crown, Smile, Lock, Camera, User } from "lucide-react";
 import { api } from "@/lib/api";
+import { BASE_PATH } from "@/lib/base-path";
 import { AvatarSelector, UserAvatar } from "@/components/UserAvatar";
 
 const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
@@ -172,7 +173,7 @@ export default function MisDatosPage() {
       setConfirmEliminar(false);
       setTimeout(() => {
         localStorage.removeItem("cg_token");
-        window.location.href = "/agendamedidas/login";
+        window.location.href = `${BASE_PATH}/login`;
       }, 3000);
     } catch (err: any) {
       setError(err.message);
