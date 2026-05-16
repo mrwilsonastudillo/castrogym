@@ -43,31 +43,39 @@ function layout(content: string, title: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${title}</title>
 </head>
-<body style="margin:0;padding:0;background:#f4f4f5;font-family:'Segoe UI',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;">
+<body style="margin:0;padding:0;background:#f0f0f0;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f0f0;padding:32px 16px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+
           <!-- Header -->
           <tr>
-            <td style="background:#0f172a;padding:28px 32px;text-align:center;">
-              <p style="margin:0;font-size:22px;font-weight:700;color:#ffffff;letter-spacing:1px;">CASTRO GYM</p>
-              <p style="margin:6px 0 0;font-size:12px;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;">Centro de Fitness</p>
+            <td style="background:#000000;padding:28px 32px 24px;text-align:center;border-radius:12px 12px 0 0;">
+              <p style="margin:0;font-size:26px;font-weight:900;color:#feda1f;letter-spacing:3px;text-transform:uppercase;">CASTRO GYM</p>
+              <p style="margin:8px 0 0;font-size:11px;color:#aaaaaa;letter-spacing:0.5px;line-height:1.5;">Seguimiento de medidas, agendamiento y control de progreso en un solo lugar</p>
             </td>
           </tr>
+
+          <!-- Accent bar -->
+          <tr>
+            <td style="background:#feda1f;height:4px;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
           <!-- Body -->
           <tr>
-            <td style="padding:36px 32px;">
+            <td style="background:#ffffff;padding:36px 32px;">
               ${content}
             </td>
           </tr>
+
           <!-- Footer -->
           <tr>
-            <td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 32px;text-align:center;">
-              <p style="margin:0;font-size:12px;color:#94a3b8;">© 2025 Castro Gym · Todos los derechos reservados</p>
-              <p style="margin:6px 0 0;font-size:11px;color:#cbd5e1;">Si no solicitaste este correo, puedes ignorarlo.</p>
+            <td style="background:#111111;padding:20px 32px;text-align:center;border-radius:0 0 12px 12px;">
+              <p style="margin:0;font-size:12px;color:#888888;">© 2026 Castro Gym · Todos los derechos reservados</p>
             </td>
           </tr>
+
         </table>
       </td>
     </tr>
@@ -77,15 +85,27 @@ function layout(content: string, title: string): string {
 }
 
 function btn(href: string, label: string): string {
-  return `<a href="${href}" style="display:inline-block;background:#0ea5e9;color:#ffffff;text-decoration:none;font-weight:600;font-size:14px;padding:12px 28px;border-radius:8px;margin-top:20px;">${label}</a>`;
+  return `<table width="100%" cellpadding="0" cellspacing="0" style="margin-top:24px;">
+    <tr>
+      <td align="center">
+        <a href="${href}" style="display:inline-block;background:#feda1f;color:#000000;text-decoration:none;font-weight:700;font-size:15px;padding:14px 36px;border-radius:8px;min-height:44px;line-height:1.2;text-align:center;">${label}</a>
+      </td>
+    </tr>
+  </table>`;
 }
 
 function greeting(nombre: unknown): string {
-  return `<p style="margin:0 0 16px;font-size:16px;color:#1e293b;">Hola, <strong>${nombre}</strong> 👋</p>`;
+  return `<p style="margin:0 0 16px;font-size:17px;font-weight:700;color:#000000;">Hola, ${nombre} 👋</p>`;
 }
 
 function divider(): string {
-  return `<hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0;" />`;
+  return `<hr style="border:none;border-top:2px solid #feda1f;margin:28px 0;" />`;
+}
+
+function infoBox(content: string): string {
+  return `<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9f9f9;border-left:4px solid #feda1f;border-radius:0 8px 8px 0;margin:16px 0;">
+    <tr><td style="padding:14px 18px;">${content}</td></tr>
+  </table>`;
 }
 
 // ─── Templates ────────────────────────────────────────────────────────────────
@@ -93,18 +113,14 @@ function divider(): string {
 export function templateBienvenida(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}
-    <p style="margin:0 0 16px;color:#475569;line-height:1.6;">
-      ¡Bienvenido a <strong>Castro Gym</strong>! Tu cuenta ha sido creada exitosamente.
-      Estamos emocionados de acompañarte en tu camino hacia tus metas de fitness.
+    <p style="margin:0 0 16px;color:#333333;line-height:1.7;font-size:15px;">
+      ¡Tu cuenta en <strong>Castro Gym</strong> ha sido creada exitosamente!
+      Estamos aquí para acompañarte en cada paso de tu camino hacia tus metas.
     </p>
-    <table width="100%" cellpadding="12" style="background:#f0f9ff;border-radius:8px;border-left:4px solid #0ea5e9;margin:16px 0;">
-      <tr><td>
-        <p style="margin:0;font-size:14px;color:#0369a1;">Accede a tu cuenta para ver tu perfil, agendar citas y registrar tus mediciones.</p>
-      </td></tr>
-    </table>
+    ${infoBox(`<p style="margin:0;font-size:14px;color:#555555;">Accede a tu cuenta para <strong>agendar citas</strong>, registrar tus <strong>mediciones</strong> y hacer seguimiento de tu progreso.</p>`)}
     ${btn(`${datos.appUrl ?? "http://localhost:3000"}/dashboard`, "Ir a mi cuenta")}
     ${divider()}
-    <p style="margin:0;font-size:13px;color:#94a3b8;">¿Necesitas ayuda? Contáctanos directamente en el gimnasio.</p>
+    <p style="margin:0;font-size:12px;color:#999999;text-align:center;">¿Necesitas ayuda? Contáctanos en <a href="mailto:soporte@castrogym.com" style="color:#000000;font-weight:600;">soporte@castrogym.com</a></p>
   `;
   return {
     subject: "¡Bienvenido a Castro Gym! 🏋️",
@@ -115,30 +131,26 @@ export function templateBienvenida(datos: Record<string, unknown>): { subject: s
 export function templateCitaConfirmada(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}
-    <p style="margin:0 0 20px;color:#475569;line-height:1.6;">Tu cita ha sido confirmada. Aquí están los detalles:</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border-radius:8px;overflow:hidden;margin-bottom:8px;">
-      <tr style="background:#0f172a;">
-        <td style="padding:10px 16px;font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">Detalle</td>
-        <td style="padding:10px 16px;font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;">Info</td>
+    <p style="margin:0 0 20px;color:#333333;line-height:1.7;font-size:15px;">¡Tu cita ha sido confirmada! Aquí están los detalles:</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eeeeee;border-radius:8px;overflow:hidden;margin-bottom:16px;">
+      <tr style="background:#000000;">
+        <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#feda1f;text-transform:uppercase;letter-spacing:1.5px;width:40%;">Detalle</td>
+        <td style="padding:10px 16px;font-size:11px;font-weight:700;color:#feda1f;text-transform:uppercase;letter-spacing:1.5px;">Info</td>
       </tr>
-      <tr style="border-bottom:1px solid #e2e8f0;">
-        <td style="padding:12px 16px;font-size:14px;color:#64748b;">📅 Fecha</td>
-        <td style="padding:12px 16px;font-size:14px;font-weight:600;color:#1e293b;">${datos.fecha}</td>
+      <tr style="border-bottom:1px solid #eeeeee;">
+        <td style="padding:13px 16px;font-size:13px;color:#888888;">📅 Fecha</td>
+        <td style="padding:13px 16px;font-size:14px;font-weight:700;color:#000000;">${datos.fecha}</td>
       </tr>
-      <tr style="border-bottom:1px solid #e2e8f0;">
-        <td style="padding:12px 16px;font-size:14px;color:#64748b;">🕐 Hora</td>
-        <td style="padding:12px 16px;font-size:14px;font-weight:600;color:#1e293b;">${datos.hora}</td>
+      <tr style="border-bottom:1px solid #eeeeee;">
+        <td style="padding:13px 16px;font-size:13px;color:#888888;">🕐 Hora</td>
+        <td style="padding:13px 16px;font-size:14px;font-weight:700;color:#000000;">${datos.hora}</td>
       </tr>
       <tr>
-        <td style="padding:12px 16px;font-size:14px;color:#64748b;">👤 Coach</td>
-        <td style="padding:12px 16px;font-size:14px;font-weight:600;color:#1e293b;">${datos.nombreCoach}</td>
+        <td style="padding:13px 16px;font-size:13px;color:#888888;">👤 Coach</td>
+        <td style="padding:13px 16px;font-size:14px;font-weight:700;color:#000000;">${datos.nombreCoach}</td>
       </tr>
     </table>
-    <table width="100%" cellpadding="12" style="background:#fef9c3;border-radius:8px;border-left:4px solid #eab308;margin:16px 0;">
-      <tr><td>
-        <p style="margin:0;font-size:13px;color:#854d0e;">Si necesitas cancelar, hazlo con al menos <strong>2 horas de anticipación</strong>.</p>
-      </td></tr>
-    </table>
+    ${infoBox(`<p style="margin:0;font-size:13px;color:#555555;">⚠️ Si necesitas cancelar, hazlo con al menos <strong>2 horas de anticipación</strong> desde la app.</p>`)}
   `;
   return {
     subject: "✅ Cita confirmada – Castro Gym",
@@ -149,16 +161,17 @@ export function templateCitaConfirmada(datos: Record<string, unknown>): { subjec
 export function templateRecordatorio(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}
-    <p style="margin:0 0 16px;color:#475569;line-height:1.6;">Te recordamos que <strong>mañana tienes una cita</strong> en Castro Gym:</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border-radius:8px;border-left:4px solid #22c55e;margin-bottom:16px;">
+    <p style="margin:0 0 16px;color:#333333;line-height:1.7;font-size:15px;">Te recordamos que <strong>mañana tienes una cita</strong> en Castro Gym. ¡Prepárate!</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#000000;border-radius:8px;margin-bottom:16px;">
       <tr>
-        <td style="padding:16px 20px;">
-          <p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#166534;">🕐 ${datos.hora} con ${datos.nombreCoach}</p>
-          <p style="margin:0;font-size:13px;color:#4ade80;color:#15803d;">¡Recuerda llegar con 10 minutos de anticipación!</p>
+        <td style="padding:20px 24px;">
+          <p style="margin:0 0 4px;font-size:12px;color:#feda1f;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Tu cita es mañana</p>
+          <p style="margin:0 0 8px;font-size:20px;font-weight:900;color:#ffffff;">🕐 ${datos.hora}</p>
+          <p style="margin:0;font-size:14px;color:#aaaaaa;">Coach: <strong style="color:#ffffff;">${datos.nombreCoach}</strong></p>
         </td>
       </tr>
     </table>
-    <p style="margin:0;font-size:13px;color:#64748b;">Si necesitas cancelar, hazlo con al menos <strong>2 horas de anticipación</strong> desde la app.</p>
+    ${infoBox(`<p style="margin:0;font-size:13px;color:#555555;">Recuerda llegar con <strong>10 minutos de anticipación</strong>. Si necesitas cancelar, hazlo con al menos <strong>2 horas de anticipación</strong>.</p>`)}
   `;
   return {
     subject: "⏰ Recordatorio: tu cita es mañana – Castro Gym",
@@ -169,16 +182,21 @@ export function templateRecordatorio(datos: Record<string, unknown>): { subject:
 export function templateCitaCancelada(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}
-    <p style="margin:0 0 16px;color:#475569;line-height:1.6;">Tu cita ha sido <strong>cancelada</strong>. Aquí están los detalles:</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#fef2f2;border-radius:8px;border-left:4px solid #ef4444;margin-bottom:16px;">
+    <p style="margin:0 0 16px;color:#333333;line-height:1.7;font-size:15px;">Tu cita ha sido <strong>cancelada</strong>. Lamentamos el inconveniente.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eeeeee;border-radius:8px;overflow:hidden;margin-bottom:16px;">
+      <tr style="background:#000000;">
+        <td colspan="2" style="padding:10px 16px;font-size:11px;font-weight:700;color:#feda1f;text-transform:uppercase;letter-spacing:1.5px;">Cita cancelada</td>
+      </tr>
+      <tr style="border-bottom:1px solid #eeeeee;">
+        <td style="padding:13px 16px;font-size:13px;color:#888888;">📅 Fecha</td>
+        <td style="padding:13px 16px;font-size:14px;font-weight:700;color:#000000;">${datos.fecha}</td>
+      </tr>
       <tr>
-        <td style="padding:16px 20px;">
-          <p style="margin:0 0 4px;font-size:14px;color:#64748b;">📅 Fecha cancelada</p>
-          <p style="margin:0;font-size:16px;font-weight:700;color:#991b1b;">${datos.fecha} a las ${datos.hora}</p>
-        </td>
+        <td style="padding:13px 16px;font-size:13px;color:#888888;">🕐 Hora</td>
+        <td style="padding:13px 16px;font-size:14px;font-weight:700;color:#000000;">${datos.hora}</td>
       </tr>
     </table>
-    <p style="margin:0 0 8px;color:#475569;">Puedes agendar una nueva cita cuando quieras desde la app.</p>
+    <p style="margin:0 0 4px;color:#333333;font-size:14px;">Puedes agendar una nueva cita cuando quieras.</p>
     ${btn(`${datos.appUrl ?? "http://localhost:3000"}/dashboard`, "Agendar nueva cita")}
   `;
   return {
@@ -190,16 +208,16 @@ export function templateCitaCancelada(datos: Record<string, unknown>): { subject
 export function templateNuevaMedicion(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}
-    <p style="margin:0 0 16px;color:#475569;line-height:1.6;">Tu coach ha registrado una <strong>nueva medición</strong> el <strong>${datos.fecha}</strong>.</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0f9ff;border-radius:8px;border-left:4px solid #0ea5e9;margin-bottom:16px;">
+    <p style="margin:0 0 16px;color:#333333;line-height:1.7;font-size:15px;">Tu coach registró una <strong>nueva medición</strong> el <strong>${datos.fecha}</strong>. ¡Sigue así!</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#000000;border-radius:8px;margin-bottom:16px;">
       <tr>
-        <td style="padding:16px 20px;">
-          <p style="margin:0 0 4px;font-size:13px;color:#0369a1;">Índice de Masa Corporal (IMC)</p>
-          <p style="margin:0;font-size:28px;font-weight:700;color:#0f172a;">${datos.imc}</p>
+        <td style="padding:20px 24px;text-align:center;">
+          <p style="margin:0 0 6px;font-size:12px;color:#feda1f;text-transform:uppercase;letter-spacing:1px;font-weight:700;">Índice de Masa Corporal (IMC)</p>
+          <p style="margin:0;font-size:40px;font-weight:900;color:#ffffff;">${datos.imc}</p>
         </td>
       </tr>
     </table>
-    <p style="margin:0 0 8px;color:#475569;">Ingresa a la app para ver tu reporte completo y seguimiento de progreso.</p>
+    <p style="margin:0 0 4px;color:#333333;font-size:14px;">Ingresa a tu cuenta para ver el reporte completo y tu evolución.</p>
     ${btn(`${datos.appUrl ?? "http://localhost:3000"}/dashboard`, "Ver mi reporte")}
   `;
   return {
@@ -211,18 +229,21 @@ export function templateNuevaMedicion(datos: Record<string, unknown>): { subject
 export function templateMembresiaPorVencer(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}
-    <p style="margin:0 0 16px;color:#475569;line-height:1.6;">Tu membresía está próxima a vencer. Renueva pronto para no perder el acceso.</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#fffbeb;border-radius:8px;border-left:4px solid #f59e0b;margin-bottom:16px;">
+    <p style="margin:0 0 16px;color:#333333;line-height:1.7;font-size:15px;">Tu membresía está próxima a vencer. Renueva a tiempo para seguir entrenando sin interrupciones.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eeeeee;border-radius:8px;overflow:hidden;margin-bottom:16px;">
+      <tr style="background:#000000;">
+        <td colspan="2" style="padding:10px 16px;font-size:11px;font-weight:700;color:#feda1f;text-transform:uppercase;letter-spacing:1.5px;">Detalles de membresía</td>
+      </tr>
+      <tr style="border-bottom:1px solid #eeeeee;">
+        <td style="padding:13px 16px;font-size:13px;color:#888888;">Plan</td>
+        <td style="padding:13px 16px;font-size:14px;font-weight:700;color:#000000;">${datos.tipo}</td>
+      </tr>
       <tr>
-        <td style="padding:16px 20px;">
-          <p style="margin:0 0 4px;font-size:13px;color:#92400e;">Membresía</p>
-          <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:#1e293b;">${datos.tipo}</p>
-          <p style="margin:0 0 4px;font-size:13px;color:#92400e;">Vence el</p>
-          <p style="margin:0;font-size:16px;font-weight:600;color:#b45309;">${datos.fechaFin}</p>
-        </td>
+        <td style="padding:13px 16px;font-size:13px;color:#888888;">⚠️ Vence el</td>
+        <td style="padding:13px 16px;font-size:14px;font-weight:700;color:#000000;">${datos.fechaFin}</td>
       </tr>
     </table>
-    <p style="margin:0 0 8px;color:#475569;">Acércate al gimnasio o contacta al administrador para renovar tu membresía.</p>
+    ${infoBox(`<p style="margin:0;font-size:13px;color:#555555;">Acércate al gimnasio o contacta al administrador para renovar y no perder tus beneficios.</p>`)}
   `;
   return {
     subject: "⚠️ Tu membresía vence pronto – Castro Gym",
@@ -233,16 +254,19 @@ export function templateMembresiaPorVencer(datos: Record<string, unknown>): { su
 export function templateMembresiaVencida(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}
-    <table width="100%" cellpadding="12" style="background:#fef2f2;border-radius:8px;border-left:4px solid #ef4444;margin-bottom:16px;">
-      <tr><td>
-        <p style="margin:0;font-size:14px;color:#991b1b;font-weight:600;">Tu membresía ha vencido.</p>
-      </td></tr>
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#000000;border-radius:8px;margin-bottom:20px;">
+      <tr>
+        <td style="padding:20px 24px;text-align:center;">
+          <p style="margin:0 0 6px;font-size:13px;color:#feda1f;font-weight:700;">Tu membresía ha vencido</p>
+          <p style="margin:0;font-size:14px;color:#aaaaaa;">Renueva para volver a entrenar con nosotros</p>
+        </td>
+      </tr>
     </table>
-    <p style="margin:0 0 16px;color:#475569;line-height:1.6;">
+    <p style="margin:0 0 16px;color:#333333;line-height:1.7;font-size:15px;">
       Para continuar disfrutando de los beneficios de <strong>Castro Gym</strong> y poder agendar citas,
       necesitas renovar tu membresía.
     </p>
-    <p style="margin:0;font-size:13px;color:#64748b;">Visítanos o contáctanos para renovar y retomar tu entrenamiento.</p>
+    ${infoBox(`<p style="margin:0;font-size:13px;color:#555555;">Visítanos en el gimnasio o escríbenos para renovar y retomar tu entrenamiento.</p>`)}
   `;
   return {
     subject: "🔴 Tu membresía ha vencido – Castro Gym",
@@ -253,15 +277,18 @@ export function templateMembresiaVencida(datos: Record<string, unknown>): { subj
 export function templateMembresiaActivada(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}
-    <p style="margin:0 0 16px;color:#475569;line-height:1.6;">Tu membresía ha sido <strong>activada exitosamente</strong>. ¡Ya puedes disfrutar de todos los beneficios!</p>
-    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border-radius:8px;border-left:4px solid #22c55e;margin-bottom:16px;">
+    <p style="margin:0 0 16px;color:#333333;line-height:1.7;font-size:15px;">¡Tu membresía ha sido <strong>activada exitosamente</strong>! Ya puedes disfrutar de todos los beneficios de Castro Gym.</p>
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eeeeee;border-radius:8px;overflow:hidden;margin-bottom:16px;">
+      <tr style="background:#000000;">
+        <td colspan="2" style="padding:10px 16px;font-size:11px;font-weight:700;color:#feda1f;text-transform:uppercase;letter-spacing:1.5px;">Tu membresía activa</td>
+      </tr>
+      <tr style="border-bottom:1px solid #eeeeee;">
+        <td style="padding:13px 16px;font-size:13px;color:#888888;">Plan</td>
+        <td style="padding:13px 16px;font-size:14px;font-weight:700;color:#000000;">${datos.tipo}</td>
+      </tr>
       <tr>
-        <td style="padding:16px 20px;">
-          <p style="margin:0 0 4px;font-size:13px;color:#166534;">Plan activado</p>
-          <p style="margin:0 0 12px;font-size:18px;font-weight:700;color:#1e293b;">${datos.tipo}</p>
-          <p style="margin:0 0 4px;font-size:13px;color:#166534;">Válida hasta</p>
-          <p style="margin:0;font-size:16px;font-weight:600;color:#15803d;">${datos.fechaFin}</p>
-        </td>
+        <td style="padding:13px 16px;font-size:13px;color:#888888;">✅ Válida hasta</td>
+        <td style="padding:13px 16px;font-size:14px;font-weight:700;color:#000000;">${datos.fechaFin}</td>
       </tr>
     </table>
     ${btn(`${datos.appUrl ?? "http://localhost:3000"}/dashboard`, "Ver mi cuenta")}
@@ -275,13 +302,17 @@ export function templateMembresiaActivada(datos: Record<string, unknown>): { sub
 export function templateRecuperarContrasena(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}
-    <p style="margin:0 0 16px;color:#475569;line-height:1.6;">
+    <p style="margin:0 0 16px;color:#333333;line-height:1.7;font-size:15px;">
       Recibimos una solicitud para restablecer la contraseña de tu cuenta en <strong>Castro Gym</strong>.
+      Haz clic en el botón para crear una nueva contraseña.
     </p>
-    <p style="margin:0 0 20px;color:#475569;">Haz clic en el botón para crear una nueva contraseña. Este enlace es válido por <strong>1 hora</strong>.</p>
-    ${btn(datos.resetUrl as string, "Restablecer contraseña")}
+    ${infoBox(`<p style="margin:0;font-size:13px;color:#555555;">🔒 Este enlace es válido por <strong>1 hora</strong> y solo puede usarse una vez.</p>`)}
+    ${btn(datos.resetUrl as string, "Restablecer contraseña ahora")}
+    <p style="margin:16px 0 0;font-size:13px;color:#888888;text-align:center;font-style:italic;">Sigue entrenando, nosotros cuidamos tu acceso.</p>
     ${divider()}
-    <p style="margin:0;font-size:13px;color:#94a3b8;">Si no solicitaste este cambio, puedes ignorar este mensaje. Tu contraseña no cambiará.</p>
+    <p style="margin:0 0 8px;font-size:12px;color:#999999;">🛡️ <strong>Nunca te pediremos tu contraseña por este medio.</strong></p>
+    <p style="margin:0 0 8px;font-size:12px;color:#999999;">Si no solicitaste este cambio, ignora este correo. Tu cuenta seguirá segura.</p>
+    <p style="margin:0;font-size:12px;color:#999999;">¿Problemas? Contáctanos en <a href="mailto:soporte@castrogym.com" style="color:#000000;font-weight:600;">soporte@castrogym.com</a></p>
   `;
   return {
     subject: "🔑 Restablecer contraseña – Castro Gym",
