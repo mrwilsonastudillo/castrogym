@@ -1,7 +1,13 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig = {
-  basePath: "/agendamedidas",
-  assetPrefix: "/agendamedidas",
+  // basePath solo en producción (Apache sirve bajo /agendamedidas)
+  // En desarrollo el frontend corre en http://localhost:3000
+  ...(isProd && {
+    basePath: "/agendamedidas",
+    assetPrefix: "/agendamedidas",
+  }),
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001",
   },
