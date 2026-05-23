@@ -20,19 +20,19 @@ git pull origin main
 # 2. Backend
 echo "[2/5] Instalando dependencias del backend..."
 cd "$APP_DIR/backend"
-npm install --omit=dev
+npm install  # incluye devDependencies (tsc, tsx, etc.) necesarias para compilar
 
 echo "  Preparando Prisma (SQLite)..."
 npx prisma generate
 npx prisma db push
 
 echo "  Compilando TypeScript..."
-npm run build
+npx tsc      # usar el tsc local del proyecto, no el global
 
 # 3. Frontend
 echo "[3/5] Instalando dependencias del frontend..."
 cd "$APP_DIR/frontend"
-npm install --omit=dev
+npm install  # incluye devDependencies necesarias para el build de Next.js
 
 echo "  Compilando Next.js..."
 # Apache proxia /agendamedidas/api → backend y /agendamedidas → frontend
