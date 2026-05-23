@@ -5,7 +5,7 @@
 # ─────────────────────────────────────────────────────────────────
 set -e
 
-APP_DIR="/home/castrogym"
+APP_DIR="/home/castrogym/agendamedidas"
 
 echo "──────────────────────────────────────────"
 echo " Castro Gym — Deploy"
