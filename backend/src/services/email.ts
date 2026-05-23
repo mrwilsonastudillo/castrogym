@@ -299,6 +299,41 @@ export function templateMembresiaActivada(datos: Record<string, unknown>): { sub
   };
 }
 
+export function templateFelizCumpleanos(datos: Record<string, unknown>): { subject: string; html: string } {
+  const content = `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#000000;border-radius:12px;margin-bottom:24px;">
+      <tr>
+        <td style="padding:28px 24px;text-align:center;">
+          <p style="margin:0 0 8px;font-size:36px;">🎂</p>
+          <p style="margin:0 0 6px;font-size:13px;color:#feda1f;text-transform:uppercase;letter-spacing:2px;font-weight:700;">¡Feliz Cumpleaños!</p>
+          <p style="margin:0;font-size:22px;font-weight:900;color:#ffffff;">${datos.nombreCliente}</p>
+        </td>
+      </tr>
+    </table>
+    <p style="margin:0 0 16px;color:#333333;line-height:1.8;font-size:15px;">
+      Hoy es un día especial para ti y para nosotros en <strong>Castro Gym</strong>.
+      Queremos celebrar contigo cada logro que has alcanzado y motivarte a seguir superando tus límites.
+    </p>
+    <p style="margin:0 0 20px;color:#333333;line-height:1.8;font-size:15px;">
+      Un año más de <strong>fuerza</strong>, <strong>constancia</strong> y <strong>superación personal</strong>.
+      Recuerda que cada peso levantado, cada gota de sudor y cada meta alcanzada te ha traído hasta aquí.
+      ¡El mejor versión de ti está en construcción y lo estás logrando!
+    </p>
+    ${infoBox(`<p style="margin:0;font-size:14px;color:#555555;font-style:italic;">💪 <strong>"El éxito no es un accidente. Es trabajo duro, perseverancia, aprendizaje y, sobre todo, amor por lo que estás haciendo."</strong></p>`)}
+    <p style="margin:20px 0 0;color:#333333;line-height:1.8;font-size:15px;">
+      Que este nuevo año de vida esté lleno de energía, salud y grandes victorias dentro y fuera del gimnasio.
+      ¡Te esperamos para celebrar juntos! 🏆
+    </p>
+    ${btn(`${datos.appUrl ?? "http://localhost:3000"}/dashboard`, "Ver mi progreso")}
+    ${divider()}
+    <p style="margin:0;font-size:13px;color:#888888;text-align:center;">Con cariño, <strong>El equipo de Castro Gym</strong> 🌟</p>
+  `;
+  return {
+    subject: `🎂 ¡Feliz Cumpleaños, ${datos.nombreCliente}! – Castro Gym`,
+    html: layout(content, "¡Feliz Cumpleaños!"),
+  };
+}
+
 export function templateRecuperarContrasena(datos: Record<string, unknown>): { subject: string; html: string } {
   const content = `
     ${greeting(datos.nombreCliente)}

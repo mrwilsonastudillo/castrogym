@@ -27,6 +27,7 @@ function membresiaEstadoBadge(estado: string) {
 
 interface NuevaMembresia {
   tipo: string;
+  fechaInicio: string;
   precio: string;
   notas: string;
 }
@@ -40,7 +41,7 @@ export default function AdminMembresiasPage() {
   const [historial, setHistorial] = useState<Membresia[]>([]);
   const [loadingHistorial, setLoadingHistorial] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<NuevaMembresia>({ tipo: "MENSUAL", precio: "", notas: "" });
+  const [form, setForm] = useState<NuevaMembresia>({ tipo: "MENSUAL", fechaInicio: new Date().toISOString().slice(0, 10), precio: "", notas: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -73,20 +74,20 @@ export default function AdminMembresiasPage() {
     setError("");
     setSuccess("");
     try {
-      const hoy = new Date();
+      const fechaInicio = new Date(form.fechaInicio + "T12:00:00");
       const dias = TIPO_DURACION[form.tipo] ?? 30;
-      const fechaFin = new Date(hoy.getTime() + dias * 24 * 60 * 60 * 1000);
+      const fechaFin = new Date(fechaInicio.getTime() + dias * 24 * 60 * 60 * 1000);
       await api.post("/api/membresias", {
         clienteId: clienteSeleccionado.id,
         tipo: form.tipo,
-        fechaInicio: hoy.toISOString(),
+        fechaInicio: fechaInicio.toISOString(),
         fechaFin: fechaFin.toISOString(),
         precio: parseFloat(form.precio),
         notas: form.notas || undefined,
       });
       setSuccess(`Membresía ${form.tipo} creada correctamente.`);
       setShowForm(false);
-      setForm({ tipo: "MENSUAL", precio: "", notas: "" });
+      setForm({ tipo: "MENSUAL", fechaInicio: new Date().toISOString().slice(0, 10), precio: "", notas: "" });
       // Recargar
       await seleccionarCliente(clienteSeleccionado);
       await cargarClientes();
@@ -235,6 +236,22 @@ export default function AdminMembresiasPage() {
                           <option value="ANUAL">Anual (365 días)</option>
                           <option value="VIP">VIP (30 días + beneficios)</option>
                         </Select>
+                        <Input
+                          id="fechaInicio"
+                          label="Fecha de inicio"
+                          type="date"
+                          value={form.fechaInicio}
+                          onChange={(e) => setForm((f) => ({ ...f, fechaInicio: e.target.value }))}
+                        />
+                        <p className="text-xs text-gray-400 -mt-2">
+                          Vence el: <strong>{
+                            (() => {
+                              const d = new Date(form.fechaInicio + "T12:00:00");
+                              d.setDate(d.getDate() + (TIPO_DURACION[form.tipo] ?? 30));
+                              return d.toLocaleDateString("es-CL");
+                            })()
+                          }</strong>
+                        </p>
                         <Input
                           id="precio"
                           label="Precio (COP)"

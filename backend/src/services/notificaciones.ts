@@ -9,6 +9,7 @@ import {
   templateMembresiaPorVencer,
   templateMembresiaVencida,
   templateMembresiaActivada,
+  templateFelizCumpleanos,
 } from "./email";
 
 export type TipoNotificacion =
@@ -18,7 +19,8 @@ export type TipoNotificacion =
   | "NUEVA_MEDICION"
   | "MEMBRESIA_POR_VENCER"
   | "MEMBRESIA_VENCIDA"
-  | "MEMBRESIA_ACTIVADA";
+  | "MEMBRESIA_ACTIVADA"
+  | "CUMPLEANOS";
 
 export async function encolarNotificacion(
   tipo: TipoNotificacion,
@@ -48,6 +50,7 @@ function renderTemplate(
     case "MEMBRESIA_POR_VENCER": return templateMembresiaPorVencer(datosConUrl);
     case "MEMBRESIA_VENCIDA":    return templateMembresiaVencida(datosConUrl);
     case "MEMBRESIA_ACTIVADA":   return templateMembresiaActivada(datosConUrl);
+    case "CUMPLEANOS":           return templateFelizCumpleanos(datosConUrl);
     default:
       return { subject: "Notificación – Castro Gym", html: `<p>${JSON.stringify(datos)}</p>` };
   }
