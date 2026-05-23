@@ -10,6 +10,8 @@ module.exports = {
       max_memory_restart: "300M",
       env: {
         NODE_ENV: "production",
+        // Ruta absoluta — evita que un cambio de CWD apunte a la DB equivocada
+        DATABASE_URL: "file:/home/castrogym/agendamedidas/backend/prisma/dev.db",
       },
     },
     {
