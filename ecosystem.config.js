@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "castrogym-backend",
-      cwd: "/var/www/castrogym/backend",
+      cwd: "/home/castrogym/backend",
       script: "dist/index.js",
       instances: 1,
       autorestart: true,
@@ -14,7 +14,7 @@ module.exports = {
     },
     {
       name: "castrogym-frontend",
-      cwd: "/var/www/castrogym/frontend",
+      cwd: "/home/castrogym/frontend",
       script: "node_modules/.bin/next",
       args: "start",
       instances: 1,

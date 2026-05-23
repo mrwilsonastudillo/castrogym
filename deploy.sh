@@ -5,7 +5,7 @@
 # ─────────────────────────────────────────────────────────────────
 set -e
 
-APP_DIR="/var/www/castrogym"
+APP_DIR="/home/castrogym"
 
 echo "──────────────────────────────────────────"
 echo " Castro Gym — Deploy"
