@@ -23,6 +23,10 @@ cd "$APP_DIR/backend"
 npm install  # incluye devDependencies (tsc, tsx, etc.) necesarias para compilar
 
 echo "  Preparando Prisma (SQLite)..."
+# DATABASE_URL con ruta absoluta: Prisma resuelve rutas relativas desde el
+# directorio del schema (prisma/), por lo que "file:./prisma/dev.db" en .env
+# apuntaría a prisma/prisma/dev.db — incorrecto. Usamos ruta absoluta aquí.
+export DATABASE_URL="file:$APP_DIR/backend/prisma/dev.db"
 npx prisma generate
 npx prisma db push
 
