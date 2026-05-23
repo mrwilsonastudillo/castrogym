@@ -21,6 +21,7 @@ const SECCIONES = [
 interface PdfPreview {
   textoCompleto: string;
   seccionesDetectadas: boolean;
+  sinTexto?: boolean;
   dieta?: string;
   habitos?: string;
   restricciones?: string;
@@ -144,8 +145,9 @@ function FormularioPlan({
     setError("");
     setPdfPreview(null);
 
+    let base64 = "";
     try {
-      const base64 = await fileToBase64(file);
+      base64 = await fileToBase64(file);
       f("pdfBase64", base64);
       f("pdfNombre", file.name);
 
@@ -153,8 +155,11 @@ function FormularioPlan({
       const preview = await api.post<PdfPreview>("/api/planes/preview-pdf", { pdfBase64: base64 });
       setPdfPreview(preview);
 
-      // Auto-rellenar secciones que estén vacías en el formulario
-      if (preview.seccionesDetectadas) {
+      if (preview.sinTexto) {
+        // PDF sin texto extraíble (escaneado/imagen): solo guardar el archivo, edición manual
+        setForm((prev) => ({ ...prev, pdfBase64: base64, pdfNombre: file.name }));
+      } else if (preview.seccionesDetectadas) {
+        // Auto-rellenar secciones detectadas que estén vacías
         setForm((prev) => ({
           ...prev,
           pdfBase64: base64,
@@ -168,7 +173,7 @@ function FormularioPlan({
           observaciones:   prev.observaciones    || preview.observaciones   || "",
         }));
       } else {
-        // Sin secciones detectadas: volcar todo en recomendaciones para que sea visible
+        // Texto extraído sin secciones: volcar en recomendaciones
         setForm((prev) => ({
           ...prev,
           pdfBase64: base64,
@@ -176,11 +181,10 @@ function FormularioPlan({
           recomendaciones: prev.recomendaciones || preview.textoCompleto || "",
         }));
       }
-    } catch (err: any) {
-      // Falla silenciosa: guardar PDF pero sin preview
-      const base64 = await fileToBase64(file).catch(() => "");
-      if (base64) { f("pdfBase64", base64); f("pdfNombre", file.name); }
-      setError(err.message || "No se pudo extraer el texto. Puedes editarlo manualmente.");
+    } catch {
+      // Falla de red u otro error: guardar PDF y permitir edición manual
+      setForm((prev) => ({ ...prev, pdfBase64: base64, pdfNombre: file.name }));
+      setError("No se pudo extraer el texto automáticamente. Completa las secciones manualmente.");
     } finally {
       setPdfLoading(false);
     }
@@ -302,20 +306,27 @@ function FormularioPlan({
           {/* Estado del preview */}
           {pdfPreview && (
             <div className={`mt-2 px-3 py-2 rounded-lg text-xs flex items-start gap-2 ${
-              pdfPreview.seccionesDetectadas
-                ? "bg-green-50 text-green-700 border border-green-200"
-                : "bg-amber-50 text-amber-700 border border-amber-200"
+              pdfPreview.sinTexto
+                ? "bg-orange-50 text-orange-700 border border-orange-200"
+                : pdfPreview.seccionesDetectadas
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-amber-50 text-amber-700 border border-amber-200"
             }`}>
-              {pdfPreview.seccionesDetectadas ? (
+              {pdfPreview.sinTexto ? (
+                <>
+                  <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+                  <span>
+                    El PDF no contiene texto extraíble (puede ser escaneado o una imagen).
+                    El archivo se guardará adjunto — completa las secciones manualmente.
+                  </span>
+                </>
+              ) : pdfPreview.seccionesDetectadas ? (
                 <>
                   <Check size={14} className="flex-shrink-0 mt-0.5" />
                   <span>
                     Secciones detectadas automáticamente. Revisa y edita los campos abajo antes de guardar.
                     {" "}
-                    <button
-                      className="underline font-medium"
-                      onClick={() => setMostrarTextoCompleto((v) => !v)}
-                    >
+                    <button className="underline font-medium" onClick={() => setMostrarTextoCompleto((v) => !v)}>
                       {mostrarTextoCompleto ? "Ocultar texto original" : "Ver texto original del PDF"}
                     </button>
                   </span>
@@ -324,13 +335,10 @@ function FormularioPlan({
                 <>
                   <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
                   <span>
-                    No se detectaron secciones con encabezados. El texto completo se cargó en
-                    &quot;Recomendaciones&quot;. Edítalo libremente.
+                    Texto extraído sin encabezados de sección detectados. Se cargó en
+                    &quot;Recomendaciones&quot; — edítalo o distribúyelo entre las secciones.
                     {" "}
-                    <button
-                      className="underline font-medium"
-                      onClick={() => setMostrarTextoCompleto((v) => !v)}
-                    >
+                    <button className="underline font-medium" onClick={() => setMostrarTextoCompleto((v) => !v)}>
                       {mostrarTextoCompleto ? "Ocultar" : "Ver texto original"}
                     </button>
                   </span>

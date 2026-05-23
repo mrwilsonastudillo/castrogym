@@ -16,9 +16,22 @@ router.post(
       res.status(400).json({ error: "pdfBase64 requerido" });
       return;
     }
+
+    // Validar que el base64 corresponde a un PDF (cabecera %PDF)
+    const inicio = Buffer.from(pdfBase64.slice(0, 8), "base64").toString("ascii");
+    if (!inicio.startsWith("%PDF")) {
+      res.status(422).json({ error: "El archivo no parece ser un PDF válido." });
+      return;
+    }
+
     const texto = await extraerTextoPDF(pdfBase64);
     if (!texto) {
-      res.status(422).json({ error: "No se pudo extraer texto del PDF. Puede ser un PDF escaneado o estar protegido." });
+      // Devolver éxito con texto vacío para que el frontend permita edición manual
+      res.json({
+        textoCompleto: "",
+        seccionesDetectadas: false,
+        sinTexto: true,
+      });
       return;
     }
     const secciones = parsearSecciones(texto);

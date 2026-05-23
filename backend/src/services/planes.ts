@@ -20,12 +20,17 @@ export function guardarPDF(base64: string, clienteId: string): string {
 
 export async function extraerTextoPDF(base64: string): Promise<string | null> {
   try {
+    // Usar la ruta interna evita el bug de pdf-parse que carga archivos de test
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const pdfParse = require("pdf-parse");
+    const pdfParse = require("pdf-parse/lib/pdf-parse.js");
     const buffer = Buffer.from(base64, "base64");
     const data = await pdfParse(buffer);
-    return data.text?.trim() || null;
-  } catch {
+    const texto = data.text?.trim();
+    if (!texto) return null;
+    // Limpiar saltos de línea excesivos y caracteres de control
+    return texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n").replace(/\n{4,}/g, "\n\n\n").trim();
+  } catch (err) {
+    console.error("[pdf-parse] error al extraer texto:", err);
     return null;
   }
 }
