@@ -28,6 +28,15 @@ export const api = {
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };
 
+export async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve((reader.result as string).split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface Usuario {
@@ -215,4 +224,71 @@ export interface ContenidoEstatico {
   titulo: string;
   contenido: string;
   fechaActualizacion: string;
+}
+
+export interface PlanVIP {
+  id: string;
+  clienteId: string;
+  coachId: string;
+  titulo: string;
+  objetivo: string | null;
+  archivoOriginal: string | null;
+  textoExtraido: string | null;
+  activo: boolean;
+  version: number;
+  fechaInicio: string;
+  fechaFin: string | null;
+  dieta: string | null;
+  habitos: string | null;
+  restricciones: string | null;
+  suplementacion: string | null;
+  observaciones: string | null;
+  metaFisica: string | null;
+  recomendaciones: string | null;
+  resumenIA: string | null;
+  insightsIA: string | null;
+  riesgosIA: string | null;
+  recomendacionesIA: string | null;
+  createdAt: string;
+  coach?: { usuario: { nombre: string } };
+  cliente?: { usuario: { nombre: string } };
+}
+
+export interface MetricasAdmin {
+  clientes: {
+    total: number;
+    activos: number;
+    inactivos: number;
+    vip: number;
+    estandar: number;
+    nuevosEsteMes: number;
+    renovacionesEsteMes: number;
+    cancelacionesEsteMes: number;
+  };
+  membresias: { activas: number; porVencer: number };
+  imc: Record<string, { count: number; porcentaje: number }>;
+  objetivos: Record<string, number>;
+  genero: Record<string, number>;
+  limitaciones: {
+    totalConLimitaciones: number;
+    porcentaje: number;
+    nichos: Record<string, number>;
+  };
+  alertas: { sinMedicionReciente: number; membresiasPorVencer: number };
+}
+
+export interface ClienteSegmentado {
+  id: string;
+  nombre: string;
+  email: string;
+  genero: string;
+  edad: number;
+  objetivo: string;
+  esVIP: boolean;
+  limitacionesFisicas: string | null;
+  nichos: string[];
+  estadoMembresia: "ACTIVO" | "INACTIVO";
+  imc: number | null;
+  clasificacionIMC: string | null;
+  ultimaMedicion: string | null;
 }

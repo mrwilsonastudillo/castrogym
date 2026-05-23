@@ -15,10 +15,12 @@
   },
   "dependencies": {
     "@prisma/client": "^5.14.0",
+    "@types/pdf-parse": "^1.1.5",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
+    "pdf-parse": "^2.4.5",
     "resend": "^6.12.3",
     "zod": "^3.23.8"
   },

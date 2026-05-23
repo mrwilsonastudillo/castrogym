@@ -18,6 +18,8 @@ import {
   Crown,
   Menu,
   X,
+  FileText,
+  PieChart,
 } from "lucide-react";
 import { UserAvatar } from "@/components/UserAvatar";
 
@@ -41,6 +43,9 @@ const navItems: NavItem[] = [
   { href: "/admin/horarios",   label: "Gest. horarios", icon: <Clock size={18} />,    roles: ["ADMIN"] },
   { href: "/admin/membresias", label: "Membresías",    icon: <CreditCard size={18} />, roles: ["ADMIN"] },
   { href: "/admin/contenido",  label: "Políticas",     icon: <Shield size={18} />,    roles: ["ADMIN"] },
+  { href: "/reportes",         label: "Reportes",      icon: <PieChart size={18} />,  roles: ["ADMIN", "COACH"] },
+  { href: "/planes",           label: "Planes VIP",    icon: <FileText size={18} />,  roles: ["ADMIN", "COACH"] },
+  { href: "/mi-plan",          label: "Mi plan VIP",   icon: <Crown size={18} />,     roles: ["CLIENTE"] },
 ];
 
 export default function AppShell({ children }: { children: ReactNode }) {

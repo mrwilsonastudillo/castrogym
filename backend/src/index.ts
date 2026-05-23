@@ -13,6 +13,7 @@ import reportesRouter from "./routes/reportes";
 import adminRouter from "./routes/admin";
 import membresiasRouter from "./routes/membresias";
 import contenidoRouter from "./routes/contenido";
+import planesRouter from "./routes/planes";
 import { startWorkers } from "./services/workers";
 
 const app = express();
@@ -32,6 +33,7 @@ app.use("/api/reportes", reportesRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/membresias", membresiasRouter);
 app.use("/api/contenido", contenidoRouter);
+app.use("/api/planes", planesRouter);
 
 app.use((_req, res) => res.status(404).json({ error: "Ruta no encontrada" }));
 

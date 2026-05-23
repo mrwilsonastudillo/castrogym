@@ -48,6 +48,7 @@ model Cliente {
   citas                  Cita[]
   mediciones             Medicion[]
   membresias             Membresia[]
+  planes                 PlanVIP[]
 }
 
 model Coach {
@@ -61,6 +62,7 @@ model Coach {
   horarios     HorarioCoach[]
   citas        Cita[]
   mediciones   Medicion[]
+  planes       PlanVIP[]
 }
 
 model HorarioCoach {
@@ -144,6 +146,37 @@ model ContenidoEstatico {
   titulo             String
   contenido          String   // markdown
   fechaActualizacion DateTime @updatedAt
+}
+
+model PlanVIP {
+  id                String    @id @default(uuid())
+  clienteId         String
+  coachId           String
+  titulo            String
+  objetivo          String?
+  archivoOriginal   String?   // ruta al PDF guardado
+  textoExtraido     String?   // texto extraído del PDF
+  activo            Boolean   @default(true)
+  version           Int       @default(1)
+  fechaInicio       DateTime
+  fechaFin          DateTime?
+  // Secciones del plan
+  dieta             String?
+  habitos           String?
+  restricciones     String?
+  suplementacion    String?
+  observaciones     String?
+  metaFisica        String?
+  recomendaciones   String?
+  // Campos reservados para IA futura
+  resumenIA         String?
+  insightsIA        String?
+  riesgosIA         String?
+  recomendacionesIA String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  cliente           Cliente   @relation(fields: [clienteId], references: [id])
+  coach             Coach     @relation(fields: [coachId], references: [id])
 }
 
 model NotificacionPendiente {

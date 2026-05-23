@@ -1,17 +1,101 @@
 import { Router, Request, Response } from "express";
 import { prisma } from "../utils/prisma";
-import { authenticate } from "../middleware/auth";
+import { authenticate, requireRol } from "../middleware/auth";
 import { canViewICC } from "../services/vip";
+import { clasificarIMC, getMetricasAdmin, getClientesSegmentados } from "../services/reportes";
 
 const router = Router();
 
-function clasificarIMC(imc: number): string {
-  if (imc < 18.5) return "bajo_peso";
-  if (imc < 25) return "normal";
-  if (imc < 30) return "sobrepeso";
-  if (imc < 35) return "obesidad_i";
-  return "obesidad_ii";
-}
+// ─── Admin: métricas agregadas ─────────────────────────────────────────────────
+
+router.get(
+  "/admin/metricas",
+  authenticate,
+  requireRol("ADMIN", "COACH"),
+  async (_req: Request, res: Response) => {
+    const data = await getMetricasAdmin();
+    res.json(data);
+  }
+);
+
+// ─── Admin: segmentación dinámica ─────────────────────────────────────────────
+
+router.get(
+  "/admin/segmentacion",
+  authenticate,
+  requireRol("ADMIN", "COACH"),
+  async (req: Request, res: Response) => {
+    const { genero, edadMin, edadMax, objetivo, esVIP, coachId, estadoMembresia, nicho } = req.query;
+    const clientes = await getClientesSegmentados({
+      genero: genero as string | undefined,
+      edadMin: edadMin ? Number(edadMin) : undefined,
+      edadMax: edadMax ? Number(edadMax) : undefined,
+      objetivo: objetivo as string | undefined,
+      esVIP: esVIP === "true" ? true : esVIP === "false" ? false : undefined,
+      coachId: coachId as string | undefined,
+      estadoMembresia: estadoMembresia as string | undefined,
+      nicho: nicho as string | undefined,
+    });
+    res.json(clientes);
+  }
+);
+
+// ─── Admin: alertas de gestión ────────────────────────────────────────────────
+
+router.get(
+  "/admin/alertas",
+  authenticate,
+  requireRol("ADMIN", "COACH"),
+  async (_req: Request, res: Response) => {
+    const ahora = new Date();
+    const hace90Dias = new Date(ahora.getTime() - 90 * 24 * 60 * 60 * 1000);
+    const en7Dias = new Date(ahora.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+    // Clientes VIP sin plan activo
+    const [vipSinPlan, membresiasPorVencer, clientesSinMedicion] = await Promise.all([
+      prisma.cliente.findMany({
+        where: {
+          esVIP: true,
+          planes: { none: { activo: true } },
+        },
+        include: { usuario: { select: { nombre: true, email: true } } },
+        take: 20,
+      }),
+      prisma.membresia.findMany({
+        where: { estado: "ACTIVA", fechaFin: { gte: ahora, lte: en7Dias } },
+        include: {
+          cliente: { include: { usuario: { select: { nombre: true, email: true } } } },
+        },
+        orderBy: { fechaFin: "asc" },
+        take: 20,
+      }),
+      prisma.cliente.findMany({
+        where: {
+          mediciones: { none: { fechaMedicion: { gte: hace90Dias } } },
+          membresias: { some: { estado: "ACTIVA", fechaFin: { gte: ahora } } },
+        },
+        include: { usuario: { select: { nombre: true, email: true } } },
+        take: 20,
+      }),
+    ]);
+
+    res.json({
+      vipSinPlan: vipSinPlan.map((c) => ({ id: c.id, nombre: c.usuario.nombre })),
+      membresiasPorVencer: membresiasPorVencer.map((m) => ({
+        membresiaId: m.id,
+        clienteId: m.clienteId,
+        nombre: m.cliente.usuario.nombre,
+        fechaFin: m.fechaFin,
+        tipo: m.tipo,
+      })),
+      sinMedicionReciente: clientesSinMedicion.map((c) => ({
+        id: c.id,
+        nombre: c.usuario.nombre,
+        email: c.usuario.email,
+      })),
+    });
+  }
+);
 
 router.get("/cliente/:clienteId", authenticate, async (req: Request, res: Response) => {
   const { clienteId } = req.params;
