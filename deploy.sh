@@ -5,7 +5,7 @@
 # ─────────────────────────────────────────────────────────────────
 set -e
 
-APP_DIR="/home/castrogym/agendamedidas"
+APP_DIR="/home/castrogym.com/public_html"
 DB_PATH="$APP_DIR/backend/prisma/dev.db"
 
 echo "──────────────────────────────────────────"

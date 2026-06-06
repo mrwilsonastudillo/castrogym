@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "castrogym-backend",
-      cwd: "/home/castrogym/agendamedidas/backend",
+      cwd: "/home/castrogym.com/public_html/backend",
       script: "dist/index.js",
       instances: 1,
       autorestart: true,
@@ -11,12 +11,12 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         // Ruta absoluta — evita que un cambio de CWD apunte a la DB equivocada
-        DATABASE_URL: "file:/home/castrogym/agendamedidas/backend/prisma/dev.db",
+        DATABASE_URL: "file:/home/castrogym.com/public_html/backend/prisma/dev.db",
       },
     },
     {
       name: "castrogym-frontend",
-      cwd: "/home/castrogym/agendamedidas/frontend",
+      cwd: "/home/castrogym.com/public_html/frontend",
       script: "node_modules/.bin/next",
       args: "start",
       instances: 1,

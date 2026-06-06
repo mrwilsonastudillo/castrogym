@@ -9,6 +9,8 @@ Castro Gym is a gym management platform for digitizing body measurements and app
 - `backend/` — Node.js + TypeScript + Express + Prisma + SQLite (port 3001)
 - `frontend/` — Next.js 14 + TypeScript + Tailwind + shadcn/ui (port 3000)
 
+**Directorio en producción (VPS):** `/home/castrogym.com/public_html/`
+
 ## Commands
 
 ### Backend
